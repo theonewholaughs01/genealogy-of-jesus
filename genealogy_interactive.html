@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Genealogy of Jesus Christ &mdash; Interactive</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep:    #0d0702;
+  --bg-dark:    #170c04;
+  --bg-mid:     #2a1508;
+  --bg-card:    #1e0f05;
+  --border:     #5c3317;
+  --gold:       #c8922a;
+  --gold-light: #e8b84b;
+  --gold-pale:  #f5e6c8;
+  --cream:      #ede0c4;
+  --text:       #d4c4a0;
+  --era1:       #3a5c1a;
+  --era1-light: #6aaa3a;
+  --era2:       #1a3a6c;
+  --era2-light: #4a7adc;
+  --era3:       #3a1a6c;
+  --era3-light: #8a5adc;
+  --women:      #7a1a2a;
+  --women-light:#dc4a6a;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg-deep);
+  font-family: 'EB Garamond', serif;
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* -- Parchment noise texture -- */
+body::before {
+  content:'';
+  position:fixed; inset:0; pointer-events:none; z-index:0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity:0.6;
+}
+
+/* -- HEADER -- */
+#header {
+  position: relative; z-index:10;
+  text-align:center;
+  padding: 3rem 1rem 2rem;
+  background: linear-gradient(180deg, #000 0%, var(--bg-deep) 100%);
+  border-bottom: 2px solid var(--gold);
+}
+#header::after {
+  content:'';
+  position:absolute; bottom:-6px; left:10%; right:10%;
+  height:2px; background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+}
+.header-eyebrow {
+  font-family:'Cinzel', serif;
+  font-size:.75rem; letter-spacing:.35em; color:var(--gold);
+  text-transform:uppercase; margin-bottom:.8rem;
+}
+.header-title {
+  font-family:'Cinzel Decorative', serif;
+  font-size: clamp(1.8rem, 5vw, 3.8rem);
+  color: var(--gold-pale);
+  line-height:1.15;
+  text-shadow: 0 0 40px rgba(200,146,42,.4), 0 2px 8px #000;
+  margin-bottom:.5rem;
+}
+.header-sub {
+  font-family:'Cinzel', serif;
+  font-size:clamp(.8rem, 1.5vw, 1.05rem);
+  color:var(--gold); letter-spacing:.15em;
+  margin-bottom:1.5rem;
+}
+.header-verse {
+  font-style:italic; font-size:1rem; color:var(--cream);
+  max-width:600px; margin:0 auto;
+}
+
+/* -- SEARCH BAR -- */
+#search-wrap {
+  position:sticky; top:0; z-index:100;
+  background: rgba(13,7,2,.95);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+  padding:.7rem 1rem;
+  display:flex; align-items:center; gap:.8rem;
+  justify-content:center; flex-wrap:wrap;
+}
+#search-input {
+  background: var(--bg-mid);
+  border:1px solid var(--border);
+  border-radius:4px;
+  color: var(--cream);
+  font-family:'EB Garamond', serif;
+  font-size:1rem;
+  padding:.45rem 1rem;
+  width:min(340px,80vw);
+  outline:none;
+  transition: border-color .2s, box-shadow .2s;
+}
+#search-input:focus { border-color:var(--gold); box-shadow:0 0 12px rgba(200,146,42,.25); }
+#search-input::placeholder { color: var(--border); }
+.search-icon { color:var(--gold); font-size:1.1rem; }
+
+/* Era filter pills */
+.filter-pills { display:flex; gap:.5rem; flex-wrap:wrap; justify-content:center; }
+.pill {
+  font-family:'Cinzel', serif;
+  font-size:.68rem; letter-spacing:.1em;
+  padding:.3rem .9rem;
+  border-radius:100px;
+  border:1px solid;
+  cursor:pointer;
+  transition: all .2s;
+  user-select:none;
+}
+.pill-all   { border-color:var(--gold);       color:var(--gold); }
+.pill-era1  { border-color:var(--era1-light);  color:var(--era1-light); }
+.pill-era2  { border-color:var(--era2-light);  color:var(--era2-light); }
+.pill-era3  { border-color:var(--era3-light);  color:var(--era3-light); }
+.pill-women { border-color:var(--women-light); color:var(--women-light); }
+.pill:hover, .pill.active { color:#000 !important; }
+.pill-all.active   { background:var(--gold);       border-color:var(--gold); }
+.pill-era1.active  { background:var(--era1-light);  border-color:var(--era1-light); }
+.pill-era2.active  { background:var(--era2-light);  border-color:var(--era2-light); }
+.pill-era3.active  { background:var(--era3-light);  border-color:var(--era3-light); }
+.pill-women.active { background:var(--women-light); border-color:var(--women-light); }
+
+/* -- MAIN LAYOUT -- */
+#main { position:relative; z-index:1; padding:2rem 1rem 4rem; max-width:1400px; margin:0 auto; }
+
+/* -- ERA SECTIONS -- */
+.era-section { margin-bottom:3rem; }
+.era-header {
+  display:flex; align-items:center; gap:1rem;
+  margin-bottom:1.5rem; padding-bottom:.8rem;
+  border-bottom:1px solid var(--border);
+  cursor:pointer; user-select:none;
+}
+.era-badge {
+  font-family:'Cinzel', serif; font-size:.65rem; letter-spacing:.18em;
+  padding:.35rem .9rem; border-radius:3px; white-space:nowrap;
+  font-weight:700;
+}
+.era-badge.e1 { background:var(--era1); color:#a8e080; border:1px solid var(--era1-light); }
+.era-badge.e2 { background:var(--era2); color:#80b0ff; border:1px solid var(--era2-light); }
+.era-badge.e3 { background:var(--era3); color:#c090ff; border:1px solid var(--era3-light); }
+
+.era-title-text {
+  font-family:'Cinzel', serif;
+  font-size:clamp(1rem,2.5vw,1.5rem);
+  color:var(--gold-pale); flex:1;
+}
+.era-meta { font-style:italic; font-size:.9rem; color:var(--gold); }
+.era-chevron { color:var(--gold); font-size:1.2rem; transition:transform .3s; }
+.era-section.collapsed .era-chevron { transform:rotate(-90deg); }
+.era-section.collapsed .era-grid { display:none; }
+
+/* -- TREE/GRID -- */
+.era-grid {
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap:1rem;
+  position:relative;
+}
+
+/* connector lines between cards via pseudo-element on grid */
+.era-grid::before {
+  content:'';
+  position:absolute;
+  top:50%; left:0; right:0; height:2px;
+  background: linear-gradient(90deg, transparent 0%, var(--border) 5%, var(--border) 95%, transparent 100%);
+  pointer-events:none; z-index:0;
+}
+
+/* -- GENERATION CARD -- */
+.gen-card {
+  position:relative; z-index:1;
+  background: var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:1rem .9rem 1rem;
+  cursor:pointer;
+  -webkit-tap-highlight-color: rgba(200,146,42,.15);
+  transition: border-color .15s, background .15s;
+  animation: fadeUp .5s ease both;
+  user-select: none;
+}
+.gen-card:hover {
+  border-color: var(--gold);
+}
+.gen-card:active {
+  background: #2a1a08;
+  border-color: var(--gold-light);
+  transform: scale(0.98);
+}
+.gen-card.highlight {
+  border-color:var(--gold-light);
+  box-shadow:0 0 20px rgba(232,184,75,.4);
+}
+.gen-card.dimmed { opacity:.25; pointer-events:none; }
+
+.gen-card.era1 { border-left:3px solid var(--era1-light); }
+.gen-card.era2 { border-left:3px solid var(--era2-light); }
+.gen-card.era3 { border-left:3px solid var(--era3-light); }
+.gen-card.women { border-left:3px solid var(--women-light); }
+
+.card-num {
+  font-family:'Cinzel', serif;
+  font-size:.65rem; letter-spacing:.1em;
+  color:var(--gold); margin-bottom:.3rem;
+}
+.card-name {
+  font-family:'Cinzel', serif;
+  font-size:1rem; font-weight:700;
+  color:var(--gold-pale); line-height:1.2;
+  margin-bottom:.3rem;
+}
+.card-years {
+  font-size:.78rem; font-style:italic;
+  color:var(--gold); margin-bottom:.4rem;
+}
+.card-teaser {
+  font-size:.82rem; line-height:1.5;
+  color:var(--text);
+  display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+}
+.card-verse-hover { display:none; }
+.card-click-hint {
+  margin-top:.6rem; font-size:.72rem; font-family:'Cinzel',serif;
+  color:var(--gold); letter-spacing:.1em; text-align:right;
+}
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(20px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* -- MODAL OVERLAY -- */
+#modal-overlay {
+  position:fixed; inset:0; z-index:1000;
+  background:rgba(0,0,0,.85);
+  backdrop-filter:blur(6px);
+  display:flex; align-items:center; justify-content:center;
+  padding:1rem;
+  opacity:0; pointer-events:none;
+  transition:opacity .3s;
+}
+#modal-overlay.open { opacity:1; pointer-events:all; }
+
+#modal {
+  background: var(--bg-card);
+  border:1px solid var(--gold);
+  border-radius:6px;
+  max-width:760px; width:100%;
+  max-height:90vh; overflow-y:auto;
+  transform:translateY(30px) scale(.97);
+  transition:transform .3s;
+  box-shadow:0 0 60px rgba(200,146,42,.3), 0 20px 60px #000;
+  position:relative;
+}
+#modal-overlay.open #modal { transform:translateY(0) scale(1); }
+
+.modal-top-bar {
+  height:4px;
+  background:linear-gradient(90deg, var(--era1-light), var(--gold), var(--era3-light));
+}
+.modal-inner { padding:2rem; }
+
+.modal-era-badge {
+  display:inline-block; font-family:'Cinzel',serif; font-size:.62rem;
+  letter-spacing:.18em; padding:.25rem .8rem; border-radius:2px; margin-bottom:1rem;
+}
+.modal-gen {
+  font-family:'Cinzel',serif; font-size:.75rem;
+  color:var(--gold); letter-spacing:.15em; margin-bottom:.4rem;
+}
+.modal-name {
+  font-family:'Cinzel Decorative',serif;
+  font-size:clamp(1.6rem,4vw,2.6rem);
+  color:var(--gold-pale); line-height:1.1;
+  text-shadow:0 0 30px rgba(200,146,42,.3);
+  margin-bottom:.3rem;
+}
+.modal-years {
+  font-style:italic; color:var(--gold); font-size:1rem; margin-bottom:1.2rem;
+}
+.modal-divider {
+  height:1px; background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  margin:1rem 0;
+}
+.modal-section-label {
+  font-family:'Cinzel',serif; font-size:.65rem; letter-spacing:.2em;
+  color:var(--gold); text-transform:uppercase; margin-bottom:.5rem;
+}
+.modal-body { font-size:1.05rem; line-height:1.8; color:var(--cream); margin-bottom:1.5rem; }
+
+.modal-scripture {
+  background:rgba(200,146,42,.06);
+  border:1px solid rgba(200,146,42,.3);
+  border-left:3px solid var(--gold);
+  border-radius:3px;
+  padding:.9rem 1.1rem; margin-bottom:1rem;
+}
+.modal-scripture-ref {
+  font-family:'Cinzel',serif; font-size:.7rem; letter-spacing:.15em;
+  color:var(--gold); margin-bottom:.3rem;
+}
+.modal-scripture-text { font-style:italic; color:var(--gold-pale); font-size:1rem; line-height:1.7; }
+
+.modal-significance {
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border);
+  border-radius:3px;
+  padding:.9rem 1.1rem;
+}
+.sig-label { font-family:'Cinzel',serif; font-size:.65rem; letter-spacing:.2em; color:var(--gold); margin-bottom:.5rem; }
+.sig-text  { font-size:.95rem; color:var(--text); line-height:1.7; }
+
+.modal-nav {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--border);
+}
+.modal-nav-btn {
+  font-family:'Cinzel',serif; font-size:.72rem; letter-spacing:.1em;
+  color:var(--gold); background:none; border:1px solid var(--border);
+  padding:.4rem .9rem; border-radius:3px; cursor:pointer;
+  transition:all .2s;
+}
+.modal-nav-btn:hover { border-color:var(--gold); background:rgba(200,146,42,.1); }
+.modal-nav-btn:disabled { opacity:.3; cursor:default; }
+
+.modal-close {
+  position:absolute; top:1rem; right:1rem;
+  background:none; border:1px solid var(--border);
+  color:var(--gold); font-size:1.2rem; width:2rem; height:2rem;
+  border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:all .2s;
+}
+.modal-close:hover { background:var(--gold); color:#000; border-color:var(--gold); }
+
+/* -- TIMELINE STRIP -- */
+#timeline-section {
+  margin:2rem 0 3rem;
+  position:relative;
+}
+.timeline-header {
+  font-family:'Cinzel',serif; font-size:.75rem; letter-spacing:.25em;
+  color:var(--gold); text-align:center; margin-bottom:1.2rem;
+  text-transform:uppercase;
+}
+.timeline-track {
+  position:relative; height:80px;
+  background:var(--bg-mid); border:1px solid var(--border);
+  border-radius:4px; overflow:hidden;
+}
+.timeline-bar {
+  position:absolute; top:0; height:100%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Cinzel',serif; font-size:.65rem; letter-spacing:.1em;
+  font-weight:700; text-align:center; cursor:pointer;
+  transition:filter .2s;
+  border-right:2px solid rgba(0,0,0,.5);
+}
+.timeline-bar:hover { filter:brightness(1.3); }
+.timeline-bar.t1 { left:0;       width:40%; background:var(--era1);  color:#a8e080; }
+.timeline-bar.t2 { left:40%;     width:30%; background:var(--era2);  color:#80b0ff; }
+.timeline-bar.t3 { left:70%;     width:30%; background:var(--era3);  color:#c090ff; }
+.tbar-inner { line-height:1.5; padding:.3rem; }
+.tbar-era  { font-size:.72rem; display:block; }
+.tbar-years{ font-size:.6rem; opacity:.8; display:block; font-style:italic; }
+.tbar-count{ font-size:.8rem; font-weight:700; display:block; margin-top:.2rem; }
+
+/* -- QUIZ SECTION -- */
+#quiz-section {
+  margin:3rem 0;
+  background:var(--bg-card); border:1px solid var(--border);
+  border-radius:6px; overflow:hidden;
+}
+.quiz-header {
+  background:linear-gradient(135deg, #1a0a00, #2a1508);
+  padding:1.2rem 1.5rem;
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.8rem;
+}
+.quiz-title { font-family:'Cinzel Decorative',serif; font-size:1.1rem; color:var(--gold-pale); }
+.quiz-score { font-family:'Cinzel',serif; font-size:.8rem; color:var(--gold); }
+.quiz-body  { padding:1.5rem; }
+
+.quiz-question {
+  font-family:'Cinzel',serif; font-size:1rem;
+  color:var(--gold-pale); margin-bottom:1.2rem; line-height:1.5;
+}
+.quiz-options { display:grid; gap:.6rem; }
+.quiz-opt {
+  background:var(--bg-mid); border:1px solid var(--border);
+  border-radius:4px; padding:.7rem 1rem;
+  font-size:.95rem; cursor:pointer; color:var(--cream);
+  transition:all .2s; text-align:left;
+}
+.quiz-opt:hover:not(:disabled) { border-color:var(--gold); background:rgba(200,146,42,.1); color:var(--gold-pale); }
+.quiz-opt.correct  { border-color:#6aaa3a !important; background:rgba(106,170,58,.15) !important; color:#a8e080 !important; }
+.quiz-opt.wrong    { border-color:#dc4a4a !important; background:rgba(220,74,74,.1)  !important; color:#ff9090 !important; }
+.quiz-opt:disabled { cursor:default; }
+.quiz-feedback {
+  margin-top:1rem; padding:.8rem 1rem;
+  border-radius:3px; font-size:.9rem; line-height:1.6;
+  display:none;
+}
+.quiz-feedback.show { display:block; }
+.quiz-feedback.right { background:rgba(106,170,58,.12); border-left:3px solid #6aaa3a; color:#a8e080; }
+.quiz-feedback.wrong { background:rgba(220,74,74,.1);   border-left:3px solid #dc4a4a; color:#ff9090; }
+
+.quiz-controls {
+  margin-top:1.2rem; display:flex; gap:.8rem; align-items:center; flex-wrap:wrap;
+}
+.quiz-btn {
+  font-family:'Cinzel',serif; font-size:.72rem; letter-spacing:.12em;
+  padding:.5rem 1.1rem; border-radius:3px; cursor:pointer;
+  transition:all .2s; border:1px solid;
+}
+.quiz-btn-next  { border-color:var(--gold); color:var(--gold); background:transparent; }
+.quiz-btn-next:hover  { background:var(--gold); color:#000; }
+.quiz-btn-reset { border-color:var(--border); color:var(--text); background:transparent; }
+.quiz-btn-reset:hover { border-color:var(--gold); color:var(--gold); }
+
+.quiz-progress {
+  display:flex; gap:.3rem; flex-wrap:wrap; margin-top:1rem;
+}
+.qp-dot {
+  width:10px; height:10px; border-radius:50%;
+  background:var(--border); transition:background .3s;
+}
+.qp-dot.answered-correct { background:#6aaa3a; }
+.qp-dot.answered-wrong   { background:#dc4a4a; }
+.qp-dot.current          { background:var(--gold); }
+
+/* -- NO RESULTS -- */
+#no-results {
+  text-align:center; padding:3rem; display:none;
+  font-style:italic; color:var(--border); font-size:1.1rem;
+}
+
+/* -- SCROLLBAR -- */
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background:var(--bg-deep); }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+::-webkit-scrollbar-thumb:hover { background:var(--gold); }
+
+/* -- FOOTER -- */
+#footer {
+  text-align:center; padding:2rem; border-top:1px solid var(--border);
+  font-family:'Cinzel',serif; font-size:.65rem; letter-spacing:.18em;
+  color:var(--border); position:relative; z-index:1;
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div id="header">
+  <div class="header-eyebrow">&#10022; A Sacred Research Experience &#10022;</div>
+  <h1 class="header-title">The Genealogy of<br>Jesus Christ</h1>
+  <div class="header-sub">Abraham &#8594; 42 Generations &#8594; The Messiah</div>
+  <p class="header-verse">"The book of the genealogy of Jesus Christ, the Son of David, the Son of Abraham." &mdash; Matthew 1:1</p>
+</div>
+
+<!-- SEARCH + FILTERS -->
+<div id="search-wrap">
+  <span class="search-icon">&#128269;</span>
+  <input id="search-input" type="text" placeholder="Search any name, e.g. Boaz, Uzziah, Rahab&#8230;">
+  <div class="filter-pills">
+    <div class="pill pill-all active"   data-filter="all">ALL</div>
+    <div class="pill pill-era1"         data-filter="era1">ERA I</div>
+    <div class="pill pill-era2"         data-filter="era2">ERA II</div>
+    <div class="pill pill-era3"         data-filter="era3">ERA III</div>
+    <div class="pill pill-women"        data-filter="women">WOMEN</div>
+  </div>
+</div>
+
+<div id="main">
+
+  <!-- TIMELINE -->
+  <div id="timeline-section">
+    <div class="timeline-header">&mdash; Click an Era on the Timeline to Jump &mdash;</div>
+    <div class="timeline-track">
+      <div class="timeline-bar t1" onclick="jumpToEra('era1')">
+        <div class="tbar-inner">
+          <span class="tbar-era">ERA I &mdash; PATRIARCH AGE</span>
+          <span class="tbar-years">~2000 BC &ndash; 1000 BC</span>
+          <span class="tbar-count">Generations 1&ndash;14</span>
+        </div>
+      </div>
+      <div class="timeline-bar t2" onclick="jumpToEra('era2')">
+        <div class="tbar-inner">
+          <span class="tbar-era">ERA II &mdash; AGE OF KINGS</span>
+          <span class="tbar-years">~1000 BC &ndash; 586 BC</span>
+          <span class="tbar-count">Generations 15&ndash;28</span>
+        </div>
+      </div>
+      <div class="timeline-bar t3" onclick="jumpToEra('era3')">
+        <div class="tbar-inner">
+          <span class="tbar-era">ERA III &mdash; EXILE TO CHRIST</span>
+          <span class="tbar-years">~586 BC &ndash; 4 BC</span>
+          <span class="tbar-count">Generations 29&ndash;42</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ERA SECTIONS rendered by JS -->
+  <div id="eras-container"></div>
+
+  <!-- NO RESULTS -->
+  <div id="no-results">No name found. Try a different spelling.</div>
+
+  <!-- QUIZ -->
+  <div id="quiz-section">
+    <div class="quiz-header">
+      <span class="quiz-title">&#10022; Test Your Knowledge</span>
+      <span class="quiz-score" id="quiz-score-display">Score: 0 / 0</span>
+    </div>
+    <div class="quiz-body">
+      <div class="quiz-question" id="quiz-question"></div>
+      <div class="quiz-options" id="quiz-options"></div>
+      <div class="quiz-feedback" id="quiz-feedback"></div>
+      <div class="quiz-controls">
+        <button class="quiz-btn quiz-btn-next"  id="quiz-next-btn"  onclick="nextQuestion()" style="display:none">NEXT QUESTION &#8594;</button>
+        <button class="quiz-btn quiz-btn-reset" id="quiz-reset-btn" onclick="resetQuiz()">RESTART QUIZ</button>
+      </div>
+      <div class="quiz-progress" id="quiz-progress"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div id="modal-overlay" onclick="closeModal(event)">
+  <div id="modal">
+    <div class="modal-top-bar" id="modal-top-bar"></div>
+    <button class="modal-close" onclick="closeModalDirect()">&#10005;</button>
+    <div class="modal-inner">
+      <div class="modal-era-badge" id="modal-era-badge"></div>
+      <div class="modal-gen"  id="modal-gen"></div>
+      <div class="modal-name" id="modal-name"></div>
+      <div class="modal-years" id="modal-years"></div>
+      <div class="modal-divider"></div>
+      <div class="modal-section-label">STORY & SIGNIFICANCE</div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-scripture" id="modal-scripture"></div>
+      <div class="modal-significance" id="modal-significance"></div>
+      <div class="modal-nav">
+        <button class="modal-nav-btn" id="modal-prev" onclick="navigateModal(-1)">&#8592; PREVIOUS</button>
+        <span style="font-family:'Cinzel',serif;font-size:.7rem;color:var(--gold)" id="modal-pos"></span>
+        <button class="modal-nav-btn" id="modal-next" onclick="navigateModal(1)">NEXT &#8594;</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="footer">MATTHEW 1:1&ndash;17 &bull; LUKE 3:23&ndash;38 &bull; GENESIS THROUGH REVELATION &bull; ALL 42 GENERATIONS</div>
+
+<script>
+// -------------------------------------------------------
+//  DATA
+// -------------------------------------------------------
+const PEOPLE = [
+  // ERA I
+  { id:1,  era:'era1', gen:'Generation 1',  name:'Abraham',    years:'~2000 BC',
+    teaser:'The father of faith, called from Ur of the Chaldeans by God Himself.',
+    verse:'"I will make you into a great nation and I will bless you." \u2014 Genesis 12:2',
+    ref:'Genesis 12\u201325; Hebrews 11:8\u201312',
+    body:'Born Abram in Ur of the Chaldeans (modern Iraq), Abraham was called by God to leave everything \u2014 his country, his people, his father\'s household \u2014 and journey to an unknown land. He obeyed by faith. God made an everlasting covenant with him: that his descendants would be as numerous as the stars, that he would possess a great land, and that through his seed all nations of the earth would be blessed. At age 100, beyond all natural hope, he and Sarah bore Isaac \u2014 the child of promise. He is called "the friend of God" (James 2:23) and "the father of all who believe" (Romans 4:11). His willingness to offer Isaac on Mount Moriah (Genesis 22) is the most powerful foreshadowing of the Father offering His Son in all Scripture.',
+    significance:'Abraham is the anchor of the entire genealogy. Matthew 1:1 opens with him deliberately \u2014 Jesus is the ultimate fulfillment of the Abrahamic covenant. Every blessing promised to Abraham finds its yes and amen in Christ (2 Cor 1:20).' },
+
+  { id:2,  era:'era1', gen:'Generation 2',  name:'Isaac',      years:'~1960 BC',
+    teaser:'Born to a 90-year-old mother \u2014 the child of the impossible promise.',
+    verse:'"Through Isaac your offspring will be reckoned." \u2014 Romans 9:7',
+    ref:'Genesis 21\u201335; Romans 9:7',
+    body:'Isaac was the miracle child \u2014 born when his father Abraham was 100 and his mother Sarah was 90, long past the age of childbearing. His very name means "laughter" \u2014 the laugh of disbelief that became the laugh of joy. When God commanded Abraham to sacrifice him on Mount Moriah, Isaac carried the wood for his own offering up the mountain, just as Jesus would carry His cross. He was bound on the altar and then released \u2014 and the ram appeared in the thicket. This episode (Genesis 22) is one of the most breathtaking Christological foreshadowings in Scripture. Isaac later married Rebekah and fathered twin sons Esau and Jacob. The covenant passed through Jacob.',
+    significance:'Isaac is a type of Christ \u2014 the beloved son willingly offered, yet spared by divine provision. The mountain where he was nearly sacrificed is identified as Moriah, the same region where Jerusalem and the Temple Mount would later stand.' },
+
+  { id:3,  era:'era1', gen:'Generation 3',  name:'Jacob',      years:'~1900 BC',
+    teaser:'The supplanter who wrestled with God and became Israel.',
+    verse:'"Your name will no longer be Jacob, but Israel." \u2014 Genesis 32:28',
+    ref:'Genesis 25\u201350; Hosea 12:3\u20134',
+    body:'Jacob was born clutching his twin brother Esau\'s heel \u2014 a born contender. He tricked his brother out of his birthright for a bowl of stew, and later deceived his dying father Isaac into giving him the covenant blessing. He fled to his uncle Laban, worked 14 years for his wife Rachel, and returned to Canaan with two wives, twelve sons, and great wealth. The night before facing his estranged brother Esau, he wrestled alone with a mysterious figure until dawn \u2014 God Himself in human form. His hip was put out of joint, yet he refused to release his grip: "I will not let you go unless you bless me." God renamed him Israel \u2014 meaning "he who strives with God." His twelve sons became the twelve tribes of the nation of Israel.',
+    significance:'Jacob\'s twelve sons are the foundation of the nation through which God would send the Messiah. His blessing of Judah in Genesis 49:10 \u2014 "the scepter shall not depart from Judah...until Shiloh comes" \u2014 is one of the oldest and most explicit messianic prophecies in Scripture.' },
+
+  { id:4,  era:'era1', gen:'Generation 4',  name:'Judah',      years:'~1850 BC',
+    teaser:'Not the eldest, not the best-behaved \u2014 yet chosen to carry the scepter.',
+    verse:'"The scepter will not depart from Judah...until he comes to whom it belongs." \u2014 Genesis 49:10',
+    ref:'Genesis 38; 49:8\u201312; Micah 5:2',
+    body:'Judah was Jacob\'s fourth son \u2014 passed over by birth order, complicated in character. His most famous story (Genesis 38) is scandalous: his daughter-in-law Tamar, twice widowed by his sons, disguised herself as a prostitute when Judah withheld his third son from her in violation of the levirate duty. Judah unknowingly slept with her. When her pregnancy was revealed and Judah threatened her with death, she produced his signet ring as evidence. Judah\'s response is extraordinary: "She is more righteous than I." The twin sons Perez and Zerah were born \u2014 and through Perez the messianic line continued. Jacob\'s blessing of Judah (Genesis 49:8\u201312) is the foundational messianic prophecy: the scepter, the ruler\'s staff, and the one to whom all nations would bow.',
+    significance:'The tribe of Judah became Israel\'s royal tribe. David was from Judah. Jesus was called "the Lion of the tribe of Judah" (Revelation 5:5). The name "Jew" derives from Judah. The messianic promise was locked into this specific lineage thousands of years before Jesus was born.' },
+
+  { id:5,  era:'era1', gen:'Generation 5',  name:'Perez',      years:'~1800 BC',
+    teaser:'Born in scandal, his name means "breach" \u2014 God breaks through every barrier.',
+    verse:'"Perez, whom Tamar bore to Judah." \u2014 Ruth 4:18',
+    ref:'Genesis 38:27\u201330; Ruth 4:18\u201322',
+    body:'Perez and his twin Zerah were born in the most dramatic fashion. When Tamar was in labour, Zerah\'s hand appeared first and the midwife tied a scarlet thread around it. Then Zerah drew his hand back, and Perez burst out first. The midwife said: "What a breach you have made for yourself!" \u2014 and so he was named Perez, meaning "breach" or "bursting through." He was the son of a union that began in disgrace, yet God chose his line to carry the covenant forward. His name \u2014 "breaching through" \u2014 is itself a portrait of how God works: breaking through every obstacle, every improper beginning, every human failure, to accomplish His redemptive purpose.',
+    significance:'Perez is one of five people in the genealogy born out of circumstances the world would consider shameful. His inclusion, and Matthew\'s deliberate mention of his mother Tamar, signals from the very beginning of the Gospel: this genealogy is about grace, not pedigree.' },
+
+  { id:6,  era:'era1', gen:'Generation 6',  name:'Hezron',     years:'~1750 BC',
+    teaser:'Listed among those who descended to Egypt with Jacob \u2014 a link in the chain.',
+    verse:'"The sons of Perez: Hezron and Hamul." \u2014 Genesis 46:12',
+    ref:'Genesis 46:12; 1 Chronicles 2:5; Ruth 4:18',
+    body:'Hezron was the son of Perez and is listed among the 70 persons who descended to Egypt with Jacob (Genesis 46:12). His name means "enclosed" or "surrounded by a wall." He lived in the early period of Israel\'s time in Egypt \u2014 before the enslavement became brutal under Pharaoh. He is mentioned in the genealogical records of 1 Chronicles 2 as a significant figure whose descendants went on to become major families in Israel. His descendants included not only the line leading to David, but also Caleb (the faithful spy) and Jerahmeel. He is a quiet figure, but his faithfulness during the Egyptian sojourn preserved the covenant lineage.',
+    significance:'Hezron represents all the nameless, uncelebrated people who faithfully carried the promise through dark periods. The 400 years in Egypt were not a pause in God\'s plan \u2014 they were part of it. Through them, a family became a nation.' },
+
+  { id:7,  era:'era1', gen:'Generation 7',  name:'Ram',        years:'~1700 BC',
+    teaser:'His name means "exalted" \u2014 a quiet bridge across a silent century.',
+    verse:'"Hezron the father of Ram, Ram the father of Amminadab." \u2014 Ruth 4:19',
+    ref:'Ruth 4:19; 1 Chronicles 2:9\u201310',
+    body:'Ram (also called Aram in some manuscripts) is a transitional figure whose life falls largely in the middle of Israel\'s Egyptian sojourn. His name means "exalted." Little is said of him in Scripture beyond his genealogical position \u2014 son of Hezron, father of Amminadab. He lived during the period when Israel was in Egypt, a time of increasing hardship as a new Pharaoh "who did not know Joseph" rose to power. Yet Ram raised Amminadab, who would raise Nahshon, who would become a tribal prince at the Exodus. Every ordinary generation that faithfully passes on the promise is extraordinary in God\'s eyes.',
+    significance:'Ram\'s obscurity is his message: God\'s purposes are not interrupted by seasons of silence. Between the patriarchs and the Exodus, through centuries of slavery and suffering, the covenant line survived in ordinary households that did not make the history books.' },
+
+  { id:8,  era:'era1', gen:'Generation 8',  name:'Amminadab', years:'~1650 BC',
+    teaser:'Father-in-law of Aaron, leading family at the Exodus \u2014 a man at the heart of Israel\'s birth.',
+    verse:'"Aaron married Elisheba, daughter of Amminadab." \u2014 Exodus 6:23',
+    ref:'Exodus 6:23; Numbers 1:7; 2:3; 7:12',
+    body:'Amminadab was a man of extraordinary family connections. His daughter Elisheba married Aaron \u2014 the brother of Moses and the first High Priest of Israel. This means Amminadab was the father-in-law of Aaron while simultaneously being the ancestor of David. The priestly line and the royal line shared this common ancestor. His son Nahshon was chosen as the tribal prince (nasi) of Judah at the beginning of the wilderness wandering \u2014 the most prominent military and civil leader of Israel\'s largest tribe. Amminadab stood at the intersection of the Exodus, the priesthood, and the tribal leadership of Israel. His name means "my people are generous" or "people of the prince."',
+    significance:'Amminadab\'s position at the Exodus moment is deeply significant. When God redeemed Israel from Egypt \u2014 the central saving event of the Old Testament \u2014 this ancestor of Jesus was at the centre of the action, leading the greatest tribe through the wilderness.' },
+
+  { id:9,  era:'era1', gen:'Generation 9',  name:'Nahshon',   years:'~1600 BC',
+    teaser:'Prince of Judah in the wilderness \u2014 and possibly the first to step into the Red Sea.',
+    verse:'"Over the division of the tribe of Judah was Nahshon son of Amminadab." \u2014 Numbers 2:3',
+    ref:'Numbers 1:7; 2:3; 7:12; 10:14',
+    body:'Nahshon was the tribal prince of Judah during the wilderness wandering \u2014 listed first among all tribal leaders in Numbers, reflecting Judah\'s preeminence. He brought the first offerings at the dedication of the Tabernacle (Numbers 7:12\u201317). According to ancient Jewish tradition (midrash), when Israel stood at the edge of the Red Sea with Pharaoh\'s army pursuing them and Moses praying, it was Nahshon who first stepped into the water \u2014 up to his nose \u2014 before the sea parted. Whether history or tradition, the story captures his character: bold, first, faithful. His name in Hebrew relates to "serpent" (nahash) \u2014 the same root as the serpent in Genesis, yet this man was one of Israel\'s most honoured leaders.',
+    significance:'Nahshon is mentioned five times in Numbers \u2014 an unusual distinction. His lineage placed him at the climactic moment of the Exodus. That Jesus descended from Israel\'s premier tribal prince during the foundational saving event of the Old Testament is no accident.' },
+
+  { id:10, era:'era1', gen:'Generation 10', name:'Salmon',     years:'~1550 BC',
+    teaser:'The man who married Rahab \u2014 a pagan prostitute \u2014 and changed his family tree forever.',
+    verse:'"Salmon the father of Boaz, whose mother was Rahab." \u2014 Matthew 1:5',
+    ref:'Matthew 1:5; Joshua 2; 6:22\u201325; Ruth 4:20',
+    body:'Salmon is believed to be one of the two spies Joshua sent to scout Jericho (Joshua 2). Rahab, a Canaanite woman who ran an inn (and had been a prostitute), hid them on her rooftop under stalks of flax. She declared her faith: "The LORD your God is God in heaven above and on the earth below." She hung a scarlet cord from her window as the agreed signal. When Jericho\'s walls fell, she and her family were spared. Salmon subsequently married Rahab \u2014 a stunning act of covenant inclusion. A Canaanite woman of disrepute became the mother of Boaz. Matthew deliberately names her in the genealogy: Rahab the outsider, the foreigner, the formerly immoral \u2014 received into the messianic line by grace and faith.',
+    significance:'Salmon and Rahab\'s marriage is a preview of the entire Gospel: a member of God\'s people reaching across every social and moral barrier to welcome in the outcast through faith. Rahab is listed in Hebrews 11 alongside Abraham and Moses as a hero of faith.' },
+
+  { id:11, era:'era1 women', gen:'Generation 11', name:'Boaz', years:'~1150 BC',
+    teaser:'Kinsman-redeemer of Ruth the Moabitess \u2014 one of Scripture\'s greatest love stories.',
+    verse:'"The LORD repay you for what you have done." \u2014 Ruth 2:12',
+    ref:'Book of Ruth; Matthew 1:5',
+    body:'Boaz was a wealthy landowner in Bethlehem, described as a "man of standing" \u2014 but more importantly, a man of exceptional character. When Ruth, a Moabite widow, came to glean in his fields, he noticed her immediately. He told his workers to leave extra grain for her deliberately. He invited her to eat with his workers. He protected her from harassment. When Ruth\'s mother-in-law Naomi learned whose field she had been in, she said: "That man is our close relative; he is one of our kinsman-redeemers." Under Mosaic law, a kinsman-redeemer had the right and duty to purchase a deceased relative\'s land and marry his widow to preserve the family name. Boaz was willing when a closer kinsman was not. He publicly redeemed Naomi\'s land and married Ruth. Their son Obed was the grandfather of King David.',
+    significance:'Boaz is one of the most powerful types of Christ in the Old Testament. He noticed the rejected foreigner. He provided generously before being asked. He paid the full redemption price willingly. He raised up the name of the dead. He called the redeemed his own. Every detail is a portrait of Jesus\' redemption of His people.' },
+
+  { id:12, era:'era1', gen:'Generation 12', name:'Obed',       years:'~1100 BC',
+    teaser:'His name means "servant" \u2014 born to restore Naomi\'s joy.',
+    verse:'"Naomi has a son!" And they named him Obed. \u2014 Ruth 4:17',
+    ref:'Ruth 4:13\u201322; 1 Chronicles 2:12',
+    body:'Obed was the son of Boaz and Ruth the Moabitess. When he was born, the women of Bethlehem celebrated with Naomi: "Praise be to the LORD, who this day has not left you without a guardian-redeemer." They said "Naomi has a son" \u2014 recognising that Obed restored the family line that had seemed extinguished. His name means "servant" or "worshipper." He lived during the period of the Judges, a turbulent era in Israel\'s history. Despite the chaos around him, the covenant lineage was quietly preserved through this one child. Obed\'s birth is a reminder that God sometimes delivers His greatest promises in the form of a baby.',
+    significance:'Obed is the quiet hinge between the beautiful story of Ruth and Boaz and the great story of David. Without this one child born in obscurity in Bethlehem, there is no Jesse, no David, no Solomon, and no Jesus. God\'s purposes often turn on a single birth.' },
+
+  { id:13, era:'era1', gen:'Generation 13', name:'Jesse',      years:'~1080 BC',
+    teaser:'The root of David \u2014 a farmer in Bethlehem who didn\'t even think to call in his youngest son.',
+    verse:'"A shoot will come up from the stump of Jesse." \u2014 Isaiah 11:1',
+    ref:'1 Samuel 16; Isaiah 11:1\u201310; Ruth 4:22',
+    body:'Jesse was a farmer and shepherd in Bethlehem, a man of some standing in the community. When the prophet Samuel came to his house to anoint a new king, Jesse presented seven of his sons \u2014 the tall, the strong, the impressive. God rejected them all. Samuel asked: "Are these all the sons you have?" Jesse replied, almost as an afterthought: "There is still the youngest... he is tending the sheep." David \u2014 the smallest, the youngest, the one not worth calling in \u2014 was God\'s chosen. The Spirit of the LORD rushed upon David from that day on. Isaiah 11:1 prophesies of the Messiah as "a shoot from the stump of Jesse" \u2014 after the Davidic dynasty had been cut down like a tree, new life would spring up from the root.',
+    significance:'Jesse\'s near-oversight of David is one of Scripture\'s great ironic moments. God\'s choice is always the unexpected one. Jesus, too, came from Bethlehem (Jesse\'s town), was overlooked by the world\'s power structures, and was identified as the "Root and Offspring of Jesse" in Revelation 22:16.' },
+
+  { id:14, era:'era1', gen:'Generation 14', name:'David',      years:'~1010\u2013970 BC',
+    teaser:'The shepherd-king, the psalmist, the warrior \u2014 the pivot point of all history.',
+    verse:'"I have found David son of Jesse, a man after my own heart." \u2014 Acts 13:22',
+    ref:'1 Samuel 16\u201331; 2 Samuel; Psalms 2, 22, 110; 2 Samuel 7',
+    body:'David was a shepherd boy who killed a lion and a bear with his hands, then killed the giant Goliath with a sling and a stone when no trained soldier would dare. He became Israel\'s greatest king, uniting the twelve tribes, capturing Jerusalem, and establishing his throne there. God made an eternal covenant with him (2 Samuel 7:12\u201316): "Your house and your kingdom will endure forever before me; your throne will be established forever." He wrote at least 73 Psalms \u2014 including Psalm 22, which describes the crucifixion in detail 1,000 years before it happened, and Psalm 110, which Jesus quoted to confound the Pharisees. He committed adultery with Bathsheba and arranged the murder of her husband \u2014 yet repented with devastating honesty (Psalm 51). He was the most complex, most fully-realised, most human of all the genealogy\'s figures.',
+    significance:'Matthew mentions David TWICE in verse 1 \u2014 "son of David, son of Abraham." He is the theological hinge. The Davidic Covenant is the sharper, more specific form of the Abrahamic promise. Jesus is called "Son of David" 17 times in the New Testament. He is the reason the Messiah had to be born in Bethlehem.' },
+
+  // ERA II
+  { id:15, era:'era2', gen:'Generation 15', name:'Solomon',    years:'~970\u2013930 BC',
+    teaser:'The wisest man alive \u2014 who ended his life in catastrophic idolatry.',
+    verse:'"God gave Solomon wisdom and very great insight." \u2014 1 Kings 4:29',
+    ref:'1 Kings 1\u201311; Proverbs; Ecclesiastes; Song of Solomon',
+    body:'Solomon began his reign with extraordinary promise. When God appeared to him and offered anything he wished, Solomon asked for wisdom to govern his people \u2014 and God was so pleased that He gave wisdom, wealth, and honour beyond any king before or after. He built the magnificent Temple in Jerusalem \u2014 one of the ancient world\'s greatest structures. He wrote Proverbs, Ecclesiastes, Song of Solomon, and many psalms. Kings and queens from across the world came to hear his wisdom, including the Queen of Sheba. Yet his story ends in tragedy: he married 700 wives of royal birth and 300 concubines, and they turned his heart toward their gods. He built high places to Baal and Asherah on the Mount of Olives. God told him the kingdom would be torn from him. It was.',
+    significance:'Solomon is the warning in the genealogy: wisdom without faithfulness is worthless. He had more than any human being in history and threw it away. Yet even his failures served God\'s purpose \u2014 the split kingdom, the separate tribe of Judah, narrowed the messianic line toward its appointed fulfillment.' },
+
+  { id:16, era:'era2', gen:'Generation 16', name:'Rehoboam',   years:'~930\u2013913 BC',
+    teaser:'The foolish son who split the kingdom with one arrogant decision.',
+    verse:'"My father made your yoke heavy; I will make it even heavier." \u2014 1 Kings 12:14',
+    ref:'1 Kings 12\u201314; 2 Chronicles 10\u201312',
+    body:'Rehoboam inherited the most powerful throne in the ancient Near East \u2014 and destroyed half of it within weeks. When the northern tribes came to him asking for lighter taxation, the elders counselled compassion. Rehoboam\'s younger friends counselled severity. He chose severity: "My father laid on you a heavy yoke; I will make it even heavier." The ten northern tribes immediately revolted under Jeroboam. Israel was permanently divided into the Northern Kingdom (Israel) and the Southern Kingdom (Judah). Rehoboam ruled Judah and Benjamin \u2014 the two tribes that stayed. He initially fortified his kingdom but then fell into idolatry himself, allowing the Egyptian Pharaoh Shishak to plunder Jerusalem and the Temple treasury in his fifth year.',
+    significance:'Rehoboam\'s split of the kingdom is one of history\'s great political catastrophes, caused by pride. Yet even this served God\'s purpose: the messianic line continued through the Southern Kingdom of Judah \u2014 exactly where the prophecy of Genesis 49:10 said it would.' },
+
+  { id:17, era:'era2', gen:'Generation 17', name:'Abijah',     years:'~913\u2013910 BC',
+    teaser:'Reigned only 3 years, yet gave one of the Old Testament\'s boldest speeches of faith.',
+    verse:'"We are observing the requirements of the LORD our God." \u2014 2 Chronicles 13:11',
+    ref:'1 Kings 15:1\u20138; 2 Chronicles 13',
+    body:'Abijah (also called Abijam) reigned only three years, yet his defining moment was extraordinary. Facing the numerically superior army of Jeroboam in battle at Mount Zemaraim, Abijah climbed the mountain and gave a remarkable speech \u2014 declaring that God\'s covenant with David still stood, that the priests of Judah still served the LORD faithfully while Israel had abandoned God. He called on Israel to surrender, warning: "Do not fight against the LORD, the God of your ancestors, for you will not succeed." When Jeroboam\'s forces attempted a flanking attack, Judah cried out to God \u2014 and God struck down Jeroboam\'s forces. Five hundred thousand Israelite soldiers fell that day. Despite this incredible victory, Abijah "walked in all the sins his father had done before him" (1 Kings 15:3) in his personal life.',
+    significance:'Abijah demonstrates that God\'s faithfulness to the Davidic covenant was not contingent on the personal holiness of every king in the line. God fought for Judah even under a flawed king. The covenant was unconditional \u2014 a picture of grace.' },
+
+  { id:18, era:'era2', gen:'Generation 18', name:'Asa',        years:'~910\u2013869 BC',
+    teaser:'41-year reign of reform \u2014 the king who deposed his own grandmother for idolatry.',
+    verse:'"Asa\'s heart was fully committed to the LORD all his life." \u2014 1 Kings 15:14',
+    ref:'1 Kings 15:9\u201324; 2 Chronicles 14\u201316',
+    body:'Asa was one of Judah\'s greatest reformers. He removed the foreign altars and high places, smashed the sacred stones, cut down the Asherah poles. Most dramatically, he removed his grandmother Maacah from her position as queen mother because she had made a repulsive image of Asherah. He commanded the people of Judah to seek God and observe the Law. When an enormous Cushite army invaded with a million soldiers, Asa prayed one of the Old Testament\'s most beautiful prayers: "LORD, there is no one like you to help the powerless against the mighty. Help us, LORD our God, for we rely on you." God routed the Cushites completely. Yet in his final years, when threatened by Israel, he paid tribute to the pagan Aramean king rather than trusting God \u2014 and was rebuked by the prophet Hanani, whom he then imprisoned. He died with diseased feet, refusing to seek God.',
+    significance:'Asa\'s life is a warning: a great beginning does not guarantee a faithful ending. His prayer in 2 Chronicles 14:11 remains one of the finest models of faith-based prayer in Scripture.' },
+
+  { id:19, era:'era2', gen:'Generation 19', name:'Jehoshaphat', years:'~872\u2013848 BC',
+    teaser:'The king who sent the choir to march ahead of the army.',
+    verse:'"Believe his prophets and you will be successful." \u2014 2 Chronicles 20:20',
+    ref:'1 Kings 22; 2 Chronicles 17\u201320',
+    body:'Jehoshaphat was one of Judah\'s most righteous kings. He sent priests and Levites throughout Judah to teach the Book of the Law \u2014 a national education program in God\'s Word. He instituted a reform of the legal system. He is most famous for the Battle of 2 Chronicles 20: a vast coalition of Moabites, Ammonites, and Meunites swept toward Jerusalem. Jehoshaphat called a national fast and prayed publicly. A prophet named Jahaziel declared: "The battle is not yours but God\'s." Jehoshaphat\'s response was extraordinary: he appointed singers to march ahead of the army, singing praises to God. When they began to sing, God set ambushes among the enemy and they destroyed each other. Judah found only corpses. Yet Jehoshaphat made a fatal error by allying with the wicked Ahab of Israel through marriage, nearly ending the Davidic line.',
+    significance:'Jehoshaphat\'s victory through worship is one of history\'s most dramatic divine interventions. "The battle belongs to the LORD" echoes across Scripture \u2014 from Goliath\'s defeat to the resurrection. His music-led army is an unforgettable image of radical faith.' },
+
+  { id:20, era:'era2', gen:'Generation 20', name:'Joram',      years:'~848\u2013841 BC',
+    teaser:'Married into the house of Ahab and Jezebel \u2014 nearly destroying the covenant line forever.',
+    verse:'"He walked in the ways of the kings of Israel." \u2014 2 Kings 8:18',
+    ref:'2 Kings 8:16\u201324; 2 Chronicles 21',
+    body:'Joram (also called Jehoram) was the son of the righteous Jehoshaphat \u2014 but he married Athaliah, the daughter of the infamous Ahab and Jezebel, and imported Baal worship into the heart of Judah. After taking the throne, he killed all his brothers to eliminate rivals. He lost control of Edom and Libnah. The prophet Elijah sent him a letter of divine judgment declaring he would be struck with a fatal intestinal disease. The prophecy was fulfilled: he died in great pain after two years, his intestines came out because of the disease. He was buried without honour, "to no one\'s regret" (2 Chronicles 21:20). His wife Athaliah would later seize the throne and attempt to kill every member of the royal family \u2014 almost destroying the Davidic line completely.',
+    significance:'Joram represents the worst marriage alliance in Judah\'s history. By bringing the house of Ahab into the royal line, he nearly ended the messianic promise. The near-extermination of the Davidic line by Athaliah shows how razor-thin God\'s preservation was.' },
+
+  { id:21, era:'era2', gen:'Generation 21', name:'Uzziah',     years:'~792\u2013740 BC',
+    teaser:'52-year reign of power and reform \u2014 ended with leprosy for one act of pride.',
+    verse:'"In the year that King Uzziah died, I saw the Lord." \u2014 Isaiah 6:1',
+    ref:'2 Kings 15:1\u20137; 2 Chronicles 26; Isaiah 1:1; 6:1',
+    body:'Uzziah had one of the longest and most successful reigns in Judah\'s history \u2014 52 years. He rebuilt Elath, defeated the Philistines, Arabians, and Meunites, strengthened Jerusalem\'s walls, and was a military innovator \u2014 equipping his army with catapults, towers, and advanced weaponry. He was famous throughout the region. But pride destroyed him. He entered the Temple to burn incense on the altar \u2014 a role reserved exclusively for priests descended from Aaron. When the priests confronted him, he became furious. Immediately, leprosy broke out on his forehead. He was driven from the Temple and remained isolated in a separate house until his death, unable to enter the Temple or the palace. Isaiah\'s great vision of God in Isaiah 6 \u2014 "In the year that King Uzziah died, I saw the Lord high and exalted" \u2014 came precisely at the moment when this seemingly unassailable king fell.',
+    significance:'Uzziah\'s fate is the classic biblical warning: do not presume on holy things. The same year his supposed greatness died, Isaiah saw the true King \u2014 high, exalted, and holy \u2014 filling the Temple. Every human pretension to divine authority is compared unfavourably to the real thing.' },
+
+  { id:22, era:'era2', gen:'Generation 22', name:'Jotham',     years:'~750\u2013732 BC',
+    teaser:'One of Judah\'s steadier kings \u2014 who built faithfully while the people still did not.',
+    verse:'"Jotham grew powerful because he walked steadfastly before the LORD." \u2014 2 Chronicles 27:6',
+    ref:'2 Kings 15:32\u201338; 2 Chronicles 27',
+    body:'Jotham was the son of Uzziah who had co-reigned with his father during his father\'s leprosy, and then took sole rule after Uzziah\'s death. He built the Upper Gate of the Temple, fortified cities, and subjugated the Ammonites who paid him tribute for three years. Unlike his father, he deliberately avoided entering the Temple to burn incense \u2014 he remembered Uzziah\'s fate. 2 Chronicles 27:6 says he "grew powerful because he walked steadfastly before the LORD his God." Yet the people "continued their corrupt practices" under him \u2014 a leader\'s personal righteousness cannot reform a nation unwilling to change. Micah and Isaiah both began their prophetic ministries during his reign, warning of coming judgment.',
+    significance:'Jotham is a lesson in faithful leadership amid a faithless people. He could not control the nation\'s spiritual direction, but he could control his own walk with God. He is one of the few kings of this era of whom no major sin is recorded.' },
+
+  { id:23, era:'era2', gen:'Generation 23', name:'Ahaz',       years:'~735\u2013716 BC',
+    teaser:'One of Judah\'s most wicked kings \u2014 who sacrificed his own children to idols.',
+    verse:'"He walked in the ways of the kings of Israel." \u2014 2 Kings 16:3',
+    ref:'2 Kings 16; 2 Chronicles 28; Isaiah 7\u20138',
+    body:'Ahaz was one of the most comprehensively wicked kings of Judah. He burned his own sons in the fire as offerings to Baal in the Valley of Ben Hinnom. He worshipped at high places, on every hill, and under every spreading tree. When Judah was threatened by the Syro-Ephraimite coalition, the prophet Isaiah came to him with one of the most famous promises in all Scripture: God would give him a sign \u2014 a young woman would conceive and bear a son called Immanuel (Isaiah 7:14). Ahaz refused the offer with mock piety: "I will not put the LORD to the test." He then stripped the Temple treasury to pay tribute to the Assyrian king Tiglath-Pileser III. He closed the Temple doors. He set up a foreign altar from Damascus in the Temple court. He is described as a man who "increased Judah\'s unfaithfulness to the LORD" (2 Chronicles 28:19).',
+    significance:'The Immanuel prophecy given to Ahaz in Isaiah 7:14 is one of the most quoted Old Testament passages in the New Testament \u2014 Matthew 1:23 cites it directly as fulfilled in Jesus\' birth. Ironically, the sign was given to one of the most faithless kings in the genealogy.' },
+
+  { id:24, era:'era2', gen:'Generation 24', name:'Hezekiah',   years:'~716\u2013687 BC',
+    teaser:'Jerusalem saved by a prayer, 185,000 enemies killed overnight, 15 extra years of life.',
+    verse:'"Hezekiah trusted in the LORD, the God of Israel. There was no one like him." \u2014 2 Kings 18:5',
+    ref:'2 Kings 18\u201320; 2 Chronicles 29\u201332; Isaiah 36\u201339',
+    body:'Hezekiah was one of the greatest kings of Judah \u2014 perhaps the greatest reformer since David. He reopened the Temple, purified it, reinstituted the Levitical priesthood and music, and celebrated a Passover that was greater than any since Solomon. He sent invitations to all Israel and Judah (and even the Northern Kingdom) to return to God. He destroyed the bronze serpent Moses had made (which had become an idol) and removed high places across the land. When the Assyrian King Sennacherib surrounded Jerusalem with his massive army and sent a mocking letter, Hezekiah spread it before the LORD in the Temple and prayed. That night, the angel of the LORD went out and struck down 185,000 Assyrian soldiers. Sennacherib withdrew. Then Hezekiah fell terminally ill. He turned to the wall and wept and prayed. God answered through Isaiah: he would live 15 more years. The sundial turned back ten steps as a sign.',
+    significance:'Hezekiah\'s life shows that one generation\'s faithfulness can reverse decades of apostasy. His prayer about Sennacherib\'s letter is a masterclass in bringing the actual problem to God in actual words. The 15 extra years of life produced Manasseh \u2014 which opens another theological puzzle entirely.' },
+
+  { id:25, era:'era2', gen:'Generation 25', name:'Manasseh',   years:'~697\u2013642 BC',
+    teaser:'The most evil king of Judah \u2014 and perhaps its most dramatic repentant.',
+    verse:'"He did more evil than the nations the LORD had destroyed." \u2014 2 Kings 21:9',
+    ref:'2 Kings 21:1\u201318; 2 Chronicles 33',
+    body:'Manasseh reigned for 55 years \u2014 the longest reign in Judah\'s history \u2014 and was the most thoroughly wicked king of the Davidic line. He rebuilt the high places his father Hezekiah had torn down. He erected altars to Baal in the Temple courts. He worshipped the stars. He sacrificed his own sons in fire. He practised divination, sought omens, and consulted mediums and spiritists. He shed so much innocent blood that Jerusalem was filled from end to end. The Talmud records that he had Isaiah the prophet sawn in half. Yet the story does not end there. The Assyrians captured him, put a hook in his nose and bronze shackles on him, and carried him to Babylon. In his distress, he humbled himself greatly before God and prayed. God moved by his supplication and restored him to Jerusalem. He then spent his remaining years removing foreign altars and commanding Judah to serve the LORD.',
+    significance:'Manasseh\'s repentance is one of the most radical in all Scripture. If this man \u2014 the worst of all the kings \u2014 can be forgiven, there is literally no one beyond the reach of God\'s mercy. His story is embedded in the genealogy of the one who came to save sinners.' },
+
+  { id:26, era:'era2', gen:'Generation 26', name:'Amon',       years:'~642\u2013640 BC',
+    teaser:'Assassinated by his own servants after just 2 years \u2014 the son who rejected his father\'s repentance.',
+    verse:'"He did not humble himself before the LORD, as his father Manasseh had done." \u2014 2 Chronicles 33:23',
+    ref:'2 Kings 21:19\u201326; 2 Chronicles 33:21\u201325',
+    body:'Amon was the son of the repentant Manasseh \u2014 yet he deliberately walked in his father\'s pre-repentance sins. He worshipped the idols his father had made, abandoned the LORD, and "increased his guilt." Unlike his father, who had been broken by suffering and found God, Amon never sought God. He was assassinated by his own palace officials after only two years of reign. The people of the land then killed the conspirators and placed his son Josiah on the throne. Amon is a sobering reminder that a parent\'s spiritual transformation does not automatically transfer to their children. Manasseh repented; Amon watched and rejected it. Josiah, however, would become one of the greatest kings of all.',
+    significance:'Amon\'s brief, wicked reign sandwiched between the repentant Manasseh and the great reformer Josiah illustrates the unpredictability of the human heart. Each person must choose their own response to what they have seen of God.' },
+
+  { id:27, era:'era2', gen:'Generation 27', name:'Josiah',     years:'~640\u2013609 BC',
+    teaser:'The boy king who rediscovered the lost Book of the Law and wept.',
+    verse:'"No king before him turned to the LORD as he did \u2014 with all his heart." \u2014 2 Kings 23:25',
+    ref:'2 Kings 22\u201323; 2 Chronicles 34\u201335; Jeremiah 1:1\u20133',
+    body:'Josiah became king at age 8, after the assassination of his father Amon. By age 16 he was personally seeking God. By age 20 he began purging Judah of its idols. At age 26, while repairing the Temple, the high priest Hilkiah found what appears to have been the original scroll of Deuteronomy \u2014 lost during Manasseh\'s reign. When Josiah heard it read, he tore his robes: "Great is the LORD\'s anger that burns against us because those who have gone before us have not obeyed the words of this book." He summoned all the people of Judah and personally read the entire covenant aloud to them. He celebrated a Passover that had not been matched since the time of Samuel. He removed every trace of idolatry from Judah and even from the old Northern Kingdom territories. Yet God\'s judgment had already been decided because of Manasseh. Josiah died at Megiddo in 609 BC, struck by Pharaoh Necho\'s archers \u2014 a death that stunned the nation.',
+    significance:'Josiah is the last great king before the exile. His life proves that genuine, whole-hearted reform is possible even after generations of failure. But it also shows that one person\'s faithfulness cannot undo the consequences of a nation\'s long rebellion. Jeremiah mourned his death; the nation wept. He was the last hope before the darkness.' },
+
+  { id:28, era:'era2', gen:'Generation 28', name:'Jeconiah',   years:'~597 BC',
+    teaser:'The last Davidic king before Babylon \u2014 and the subject of a divine curse that raises a profound theological puzzle.',
+    verse:'"None of his offspring will prosper, none will sit on the throne of David." \u2014 Jeremiah 22:30',
+    ref:'2 Kings 24; 2 Chronicles 36; Jeremiah 22:24\u201330; Matthew 1:11\u201312',
+    body:'Jeconiah (also called Jehoiachin or Coniah) was the grandson of Josiah and the last king of Judah to reign before the Babylonian exile. He reigned only three months before Nebuchadnezzar besieged Jerusalem. Jeconiah surrendered and was carried to Babylon in 597 BC along with 10,000 of Judah\'s best soldiers, craftsmen, and officials (the first deportation). Jeremiah pronounced a stunning curse: no descendant of Jeconiah would sit on the throne of David. Yet Matthew\'s genealogy traces the line through Jeconiah to Joseph, the legal father of Jesus. How is the curse resolved? Matthew is tracing the legal/adoptive paternity. Luke\'s separate genealogy traces through Mary, whose Davidic line runs through Nathan (not Solomon and not Jeconiah) \u2014 avoiding the curse entirely. Joseph\'s legal adoption of Jesus establishes His royal claim; Mary\'s bloodline establishes His Davidic DNA.',
+    significance:'The Jeconiah puzzle is one of the most fascinating theological knots in the New Testament. The dual genealogy of Matthew and Luke is the resolution: Jesus holds the royal legal title through Joseph and the biological royal bloodline through Mary. Both are required.' },
+
+  // ERA III
+  { id:29, era:'era3', gen:'Generation 29', name:'Shealtiel',  years:'~600 BC',
+    teaser:'Born in Babylonian captivity \u2014 heir to a throne that no longer existed.',
+    verse:'"Jeconiah the father of Shealtiel." \u2014 Matthew 1:12',
+    ref:'Matthew 1:12; 1 Chronicles 3:17; Ezra 3:2; Haggai 1:1',
+    body:'Shealtiel was born in Babylonian exile \u2014 the son of the captive king Jeconiah. He was a prince of the royal house with no throne, in a foreign land, surrounded by the ruins of everything his ancestors had built. Yet he held the legal lineage of David\'s royal house in trust for a future king who had not yet been born. His son Zerubbabel would become the governor who led the first return of exiles to Jerusalem and laid the foundation of the Second Temple. Shealtiel\'s name means "I have asked God" \u2014 a fitting name for one born in the darkness of exile, whose very existence was an act of hope. He is one of the clearest examples of someone whose sole recorded purpose in Scripture is to pass on the promise to the next generation.',
+    significance:'Shealtiel is proof that the promise survived Babylon. The most powerful empire in the ancient world could not extinguish the Davidic line. God preserved it in a prisoner\'s family, in a foreign land, against all odds.' },
+
+  { id:30, era:'era3', gen:'Generation 30', name:'Zerubbabel', years:'~520 BC',
+    teaser:'Governor of Judah after the exile \u2014 rebuilt the Temple with a trowel in one hand and a sword in the other.',
+    verse:'"\'Not by might nor by power, but by my Spirit,\' says the LORD Almighty." \u2014 Zechariah 4:6',
+    ref:'Ezra 1\u20136; Nehemiah 12; Haggai 1\u20132; Zechariah 4',
+    body:'Zerubbabel is one of the most important transitional figures in all of Scripture. He led the first wave of Jewish exiles back to Jerusalem from Babylon in 538 BC under the decree of Cyrus the Great. He was appointed Persian governor of Judah and worked with the high priest Joshua to lay the foundation of the Second Temple. When opposition halted the work for years, God sent the prophets Haggai and Zechariah to stir Zerubbabel to rebuild. Zechariah 4 records God\'s remarkable declaration to him: "Not by might nor by power, but by my Spirit, says the LORD Almighty. What are you, mighty mountain? Before Zerubbabel you will become level ground. Then he will bring out the capstone to shouts of \'God bless it! God bless it!\'" God called Zerubbabel His "signet ring" \u2014 a royal symbol of restored covenant authority after the curse of Jeconiah.',
+    significance:'Zerubbabel is the post-exilic restoration of hope. Called God\'s "signet ring" in Haggai 2:23, he represents the re-sealing of God\'s covenant promises after the judgment of exile. That he is in Jesus\' genealogy connects the Second Temple era directly to the Messiah.' },
+
+  { id:31, era:'era3', gen:'Generation 31', name:'Abiud',      years:'~490 BC',
+    teaser:'Appears only once in all of Scripture \u2014 a mystery figure whose very obscurity is his message.',
+    verse:'"Zerubbabel the father of Abiud." \u2014 Matthew 1:13',
+    ref:'Matthew 1:13 only',
+    body:'Abiud appears in one verse of the entire Bible \u2014 Matthew 1:13. Beyond this, he is a complete mystery. No stories. No deeds. No prophecies spoken to him or about him. He lived in the post-exile period, probably under Persian occupation, as Judah transitioned from being a Babylonian province to a Persian one. His name means "father of majesty" or "my father is majesty/honour" \u2014 a theologically loaded name suggesting his parents still carried the consciousness of royal dignity. He was the son of Zerubbabel, the great temple-builder, and he raised Eliakim, who raised Azor, who continued the chain toward Joseph and Mary. He represents something profound: you do not need to be celebrated by history to be essential to God\'s story.',
+    significance:'Abiud is the representative of all the "hidden" generations in Era III. Between Zerubbabel and Joseph lay 500+ years and 11 generations of people who are completely unknown to history. Each one is irreplaceable in the genealogy. God knows every name.' },
+
+  { id:32, era:'era3', gen:'Generation 32', name:'Eliakim',    years:'~460 BC',
+    teaser:'"God will raise up" \u2014 a name of hope spoken into Persian occupation.',
+    verse:'"Abiud the father of Eliakim." \u2014 Matthew 1:13',
+    ref:'Matthew 1:13 only',
+    body:'Eliakim appears only in Matthew\'s genealogy. His name means "God will raise up" \u2014 a remarkable name to give a child during Persian occupation, when the Davidic monarchy was a distant memory and there was no throne, no king, and no visible sign of God\'s royal promise. This name was itself an act of faith \u2014 a declaration by parents who still believed that God would raise up a king from their line. He lived during the time of Nehemiah and Malachi, the late Persian period when the last books of the Old Testament were being written. After Malachi, Scripture would go silent for 400 years \u2014 and Eliakim\'s descendants would carry the promise through that silence.',
+    significance:'The name "God will raise up" echoes forward through the genealogy like a prophecy. God did raise up \u2014 a Saviour, the raised-from-the-dead King Jesus. Parents who named their children in faith during dark periods were speaking prophecy without knowing it.' },
+
+  { id:33, era:'era3', gen:'Generation 33', name:'Azor',       years:'~430 BC',
+    teaser:'"Helper" \u2014 a quiet name for a quiet life in one of history\'s quietest spiritual periods.',
+    verse:'"Eliakim the father of Azor." \u2014 Matthew 1:13',
+    ref:'Matthew 1:13\u201314 only',
+    body:'Azor appears in one verse. His name derives from a root meaning "help" or "helper." He lived in the late 5th or early 4th century BC \u2014 a period when Judah was a small Persian province, the Davidic royal line had no political power whatsoever, and the prophets had fallen silent. Malachi was the last prophetic voice, and after him came 400 years of divine silence. Azor was born into or near the beginning of that silence. He was a helper \u2014 his name says so \u2014 living in obscurity, carrying a name and a lineage that the world had forgotten. Yet God had not forgotten. Azor lived between the last prophet and the coming of John the Baptist, a period when ordinary families like his kept the flame of the promise alive through nothing more than faithful existence.',
+    significance:'Azor embodies the 400 years of silence. The world did not hear from God in those years through new prophecy. But God was working \u2014 in genealogies, in families, in the unnamed faithful who passed on the ancient promises to their children.' },
+
+  { id:34, era:'era3', gen:'Generation 34', name:'Zadok',      years:'~400 BC',
+    teaser:'A name echoing the great high priest \u2014 a royal ancestor living in anonymous faithfulness.',
+    verse:'"Azor the father of Zadok." \u2014 Matthew 1:14',
+    ref:'Matthew 1:14 only',
+    body:'Zadok was the name of one of Israel\'s most famous high priests \u2014 the loyal priest who served David and then Solomon and gave his name to the Zadokite priestly dynasty. To name a royal descendant "Zadok" in the 4th century BC \u2014 when there was neither a Davidic king nor a Zadokite priest \u2014 was to name a child after the height of Israel\'s former glory. This Zadok lived during the early Greek period, as Alexander the Great swept through the Persian Empire and conquered Judea in 332 BC, drastically changing the political landscape of the region. Through all this political upheaval \u2014 Persian then Greek rule \u2014 the covenant line quietly survived in households like Zadok\'s.',
+    significance:'The name Zadok means "righteous." Naming a child "Righteous" during a period of foreign occupation and national humiliation is itself a statement of faith: God\'s standard of righteousness has not changed, and the people who carry His promise must embody it.' },
+
+  { id:35, era:'era3', gen:'Generation 35', name:'Achim',      years:'~370 BC',
+    teaser:'The most mysterious name in the entire genealogy \u2014 appears once and nowhere else.',
+    verse:'"Zadok the father of Achim." \u2014 Matthew 1:14',
+    ref:'Matthew 1:14 only',
+    body:'Achim is perhaps the most obscure figure in the entire Bible. He appears in one verse, with no story, no meaning attested with certainty, and no other mention anywhere in Scripture or in Jewish tradition. Some scholars suggest his name may relate to a form of "Jehoiachin" or "established by God." He lived during the 4th century BC \u2014 the Hellenistic period following Alexander the Great\'s conquest. His lifetime spanned the transition from Persian to Greek cultural dominance, a period of great pressure on Jewish identity and religious practice. The Greek language, culture, and religion were aggressively promoted across the region. Achim and his family quietly maintained their identity as descendants of David through all of it.',
+    significance:'Achim\'s near-total absence from history is his greatest lesson: God remembers every person that history forgets. In God\'s genealogy of salvation, there are no footnotes \u2014 every name is essential, every life is counted, every generation of faithfulness matters.' },
+
+  { id:36, era:'era3', gen:'Generation 36', name:'Eliud',      years:'~340 BC',
+    teaser:'"God is my praise" \u2014 a declaration of worship born during the silent centuries.',
+    verse:'"Achim the father of Eliud." \u2014 Matthew 1:14',
+    ref:'Matthew 1:14\u201315 only',
+    body:'Eliud\'s name means "God is my praise" or "my God is majesty." He lived during the height of the Greek period in Judea \u2014 a time when Hellenistic culture was deeply penetrating Jewish society, when many Jews were abandoning their traditions, their language, and their God for Greek customs. Under the Ptolemies and then the Seleucids, the pressure to assimilate was enormous. To name a child "God is my praise" in this context \u2014 maintaining a Hebrew theological name in a Greek world \u2014 was an act of cultural and spiritual resistance. His descendants lived through the most violent crisis of this period: Antiochus Epiphanes\' desecration of the Temple in 167 BC, the Maccabean revolt, and the brief independence of the Hasmonean dynasty.',
+    significance:'Eliud\'s name is a hymn of praise written into a genealogy. In a world pressuring God\'s people to assimilate and forget, families that kept naming their children after God\'s attributes were keeping the promise alive one generation at a time.' },
+
+  { id:37, era:'era3', gen:'Generation 37', name:'Eleazar',    years:'~300 BC',
+    teaser:'Named after Aaron\'s faithful son, the first high priest to serve after Aaron \u2014 a name of honour.',
+    verse:'"Eliud the father of Eleazar." \u2014 Matthew 1:15',
+    ref:'Matthew 1:15 only',
+    body:'Eleazar was the name of Aaron\'s third son, who became the second high priest of Israel after Aaron\'s death, and whose descendants maintained the Zadokite priestly line. To name a royal descendant "Eleazar" during this period was again to reach back into Israel\'s golden age of covenant faithfulness. This Eleazar in the genealogy lived through the Maccabean era \u2014 arguably the most dramatic period of Jewish history between the exile and the New Testament. He may have witnessed or heard of the Maccabean brothers\' revolt against Antiochus Epiphanes, the rededication of the Temple (celebrated as Hanukkah), and the brief period of Jewish self-rule under the Hasmoneans. His name means "God has helped."',
+    significance:'The name "God has helped" becomes increasingly poignant as this genealogy draws toward its conclusion. After 500+ years of foreign occupation, silent heaven, and obscure faithfulness, the help of God was about to arrive in a way no one expected \u2014 as an infant in Bethlehem.' },
+
+  { id:38, era:'era3', gen:'Generation 38', name:'Matthan',    years:'~100 BC',
+    teaser:'"Gift" \u2014 the great-grandfather of Jesus Christ.',
+    verse:'"Eleazar the father of Matthan." \u2014 Matthew 1:15',
+    ref:'Matthew 1:15 only',
+    body:'Matthan\'s name means "gift." He lived during the late 2nd or early 1st century BC \u2014 a period when the Hasmonean dynasty was fracturing, when Rome was beginning to assert dominance over the Eastern Mediterranean, and when Jewish factionalism between Pharisees, Sadducees, and others was intensifying. He was the father of Jacob, the grandfather of Joseph, and the great-grandfather of Jesus. Three more generations and the Promise would be born. Like Achim and Abiud before him, Matthan is a name without a story \u2014 yet without him, there is no Joseph, no Mary\'s betrothal, no stable in Bethlehem, no manager, no star. He was a gift \u2014 literally \u2014 in the chain of God\'s grace.',
+    significance:'Matthan\'s name, meaning "gift," is perhaps the most quietly prophetic in the entire third era. He was a gift in the genealogy \u2014 and three generations later, "God so loved the world that He gave His only gift" (echoing John 3:16).' },
+
+  { id:39, era:'era3', gen:'Generation 39', name:'Jacob',      years:'~70 BC',
+    teaser:'Father of Joseph \u2014 the final human link before the Messiah\'s earthly father.',
+    verse:'"Matthan the father of Jacob, and Jacob the father of Joseph." \u2014 Matthew 1:15\u201316',
+    ref:'Matthew 1:15\u201316 only',
+    body:'This Jacob is not the great patriarch Jacob/Israel \u2014 he is his namesake, living nearly 2,000 years later. He was the father of Joseph the carpenter, the earthly father of Jesus. He lived during the turbulent final decades of the Hasmonean dynasty and the beginning of Roman domination of Judea. Herod the Great \u2014 the king who would later slaughter the infants of Bethlehem \u2014 was appointed king of Judea in 37 BC. This Jacob raised Joseph in Bethlehem or Galilee, presumably in the trade of carpentry, and presumably passed on the ancient knowledge that they were descendants of the royal house of David \u2014 knowledge that would have seemed irrelevant under Roman rule, but which would prove to be the most important piece of information in the world.',
+    significance:'Jacob is the bridge \u2014 carrying the name of the patriarch and the lineage of David into the first century. He raised the man who would be chosen to raise the Son of God. What he taught Joseph about God, about David\'s promise, about faithfulness \u2014 we do not know. But something was passed on.' },
+
+  { id:40, era:'era3', gen:'Generation 40', name:'Joseph',     years:'~30 BC \u2013 ~1 BC',
+    teaser:'The just man who kept silent \u2014 protecting the mother of God with his obedience.',
+    verse:'"Joseph her husband was faithful to the law, and yet did not want to expose her to public disgrace." \u2014 Matthew 1:19',
+    ref:'Matthew 1:18\u201325; Luke 2:1\u201352',
+    body:'Joseph the carpenter is one of Scripture\'s most extraordinary figures \u2014 precisely because of what he chose not to say. When Mary was found to be pregnant before their marriage, Joseph\'s first instinct was quiet compassion: he would divorce her privately rather than expose her to public shaming (and under Jewish law, possible stoning). Then an angel appeared to him in a dream and told him the truth. Joseph did not question. He did not demand signs. He simply obeyed: he took Mary home as his wife, he named the child Jesus as commanded, he fled to Egypt with his family on a night\'s notice. He is mentioned in the nativity accounts and then almost disappears \u2014 we hear only one more story of him, when Jesus is 12 and stays behind in Jerusalem. He is thought to have died before Jesus began His ministry. He was a carpenter, a protector, a man of silence and obedience.',
+    significance:'Joseph\'s legal adoption of Jesus \u2014 the naming in Matthew 1:25 \u2014 is the moment the legal royal title of Son of David passed to Jesus. By this one act of obedience, a humble carpenter placed the Messiah within the Davidic line as required by prophecy. The entire legal mechanism of the genealogy rests on Joseph\'s yes.' },
+
+  { id:41, era:'era3 women', gen:'Generation 41', name:'Mary', years:'~18 BC \u2013 ~AD 48',
+    teaser:'The young woman from Nazareth whose yes changed the universe.',
+    verse:'"I am the Lord\'s servant. May your word to me be fulfilled." \u2014 Luke 1:38',
+    ref:'Luke 1:26\u201356; Matthew 1:18\u201325; John 19:25\u201327',
+    body:'Mary (Miriam in Hebrew) was a young woman \u2014 probably 13\u201316 years old by cultural norms \u2014 living in Nazareth, betrothed to Joseph. The angel Gabriel appeared to her and said: "Do not be afraid, Mary; you have found favour with God. You will conceive and give birth to a son, and you are to call him Jesus. He will be great and will be called the Son of the Most High. The Lord God will give him the throne of his father David, and he will reign over Jacob\'s descendants forever; his kingdom will never end." Mary asked only one practical question: "How will this be, since I am a virgin?" And when she received the answer, she said simply: "I am the Lord\'s servant. May your word to me be fulfilled." Her response is one of the most profound statements of faith in human history. She then went to her cousin Elizabeth and sang the Magnificat \u2014 one of Scripture\'s greatest hymns of praise. She watched her son be crucified. She was in the upper room at Pentecost.',
+    significance:'Mary is the hinge of the incarnation. All 41 generations before her existed to bring the right woman to this moment. Her biological DNA is Jesus\' human DNA. The Son of God chose to enter the world through a young girl\'s willing yes. The Magnificat (Luke 1:46\u201355) shows she understood the theological weight of what was happening \u2014 her song echoes Hannah, the Psalms, and the prophets.' },
+
+  { id:42, era:'era3', gen:'Generation 42', name:'Jesus Christ', years:'~4 BC \u2013 AD 33',
+    teaser:'The fulfillment of every name, every era, every promise. Emmanuel \u2014 God with us.',
+    verse:'"The Word became flesh and made his dwelling among us." \u2014 John 1:14',
+    ref:'Matthew 1:1\u201317; Luke 3:23\u201338; John 1:1\u201314; Revelation 22:16',
+    body:'Jesus of Nazareth \u2014 Yeshua in Hebrew, meaning "the LORD saves" \u2014 is the reason every name in this genealogy exists. He was born of the Virgin Mary in Bethlehem of Judea during the reign of Herod the Great, fulfilling Micah 5:2. He was the Son of David, legally through Joseph\'s adoption and biologically through Mary\'s Davidic bloodline. He was the Son of Abraham, in whom every promise God made to Abraham found its ultimate yes. He lived for 33 years, preached the Kingdom of God for three years, gathered twelve disciples, performed signs and wonders, was betrayed by one of his own, tried before Pilate, crucified outside Jerusalem, buried in a borrowed tomb, and raised from the dead on the third day \u2014 witnessed by more than 500 people simultaneously (1 Corinthians 15:6). He appeared to His disciples for 40 days, ascended to heaven before their eyes, and poured out the Holy Spirit at Pentecost. He is described as: the Lion of the tribe of Judah (Rev 5:5), the Root and Offspring of David (Rev 22:16), the Lamb of God who takes away the sin of the world (John 1:29), the resurrection and the life (John 11:25), and the Alpha and Omega, the beginning and the end (Rev 22:13).',
+    significance:'The genealogy is not a list \u2014 it is a love letter. God signed His name across 2,000 years of human history, through patriarchs and kings and forgotten families and five unlikely women, to say: I have not forgotten. I am faithful. My Word does not return void. And in a stable in Bethlehem, forty-two generations after Abraham looked up at the stars, the Promise came in person.' },
+];
+
+// Women overlay entries
+const WOMEN_DATA = [
+  { id:101, era:'women', gen:'The Five Women', name:'Tamar',      years:'~1800 BC',
+    teaser:'Used boldness to preserve the covenant line when Judah failed his duty.',
+    verse:'"She is more righteous than I." \u2014 Genesis 38:26',
+    ref:'Genesis 38; Matthew 1:3; Ruth 4:12',
+    body:'Tamar was a Canaanite woman who married Er, the firstborn son of Judah. When Er died, Judah gave her his second son Onan as a levirate husband, but Onan also died. Judah withheld his third son Shelah, fearing he too would die. Tamar waited. Years passed. When she realised Judah had broken his levirate duty to her, she took matters into her own hands: she disguised herself as a cult prostitute and sat by the road where Judah would pass. He slept with her and left his signet ring, cord, and staff as a pledge. When her pregnancy was discovered, Judah prepared to have her burned \u2014 until she produced his own signet ring. His response is extraordinary: "She is more righteous than I, since I would not give her my son Shelah." She gave birth to twins Perez and Zerah. Through Perez, the covenant line continued.',
+    significance:'Tamar acted with the shrewdness of someone who understood the covenant obligations better than the patriarch of the line himself. Matthew includes her name deliberately: the messianic genealogy passes through a Canaanite woman who exposed injustice with boldness. Grace for the Desperate.' },
+  { id:102, era:'women', gen:'The Five Women', name:'Rahab',      years:'~1400 BC',
+    teaser:'A Canaanite prostitute from Jericho whose scarlet cord is a picture of salvation.',
+    verse:'"The LORD your God is God in heaven above and on the earth below." \u2014 Joshua 2:11',
+    ref:'Joshua 2; 6:22\u201325; Matthew 1:5; Hebrews 11:31; James 2:25',
+    body:'Rahab ran an inn in Jericho \u2014 a city doomed for destruction. When Israelite spies came to her house, she hid them on the roof under stalks of flax and told the king\'s men they had already left. Then she made her terms: spare me and my family when you take the city, because "I know that the LORD has given you this land." Her faith statement is remarkable: she acknowledged the God of Israel as the true God of heaven and earth based purely on what she had heard. The sign agreed: a scarlet cord hanging from her window. When Jericho\'s walls fell flat, only the section with the scarlet cord remained standing. She and her family were saved. She subsequently married Salmon \u2014 a member of the conquering Israelite army \u2014 and became the mother of Boaz.',
+    significance:'Rahab is listed in Hebrews 11 as a hero of faith alongside Abraham, Moses, and David. She is also cited in James 2 as an example of faith demonstrated through works. A Canaanite, a former prostitute, an enemy citizen \u2014 she entered the genealogy of Christ by one act of faith-driven hospitality. Grace for the Outsider.' },
+  { id:103, era:'women', gen:'The Five Women', name:'Ruth',       years:'~1150 BC',
+    teaser:'A Moabite widow whose loyalty to Naomi is one of Scripture\'s most beautiful stories.',
+    verse:'"Where you go I will go, and where you stay I will stay." \u2014 Ruth 1:16',
+    ref:'Book of Ruth; Matthew 1:5; Romans 9:25\u201326',
+    body:'Ruth was a Moabitess who had married into a Jewish family. When her husband died, her mother-in-law Naomi urged her to return to her own people and gods. Ruth refused with one of the most famous speeches in all of Scripture: "Where you go I will go, and where you stay I will stay. Your people will be my people and your God my God." She left her homeland, her people, and the gods she had grown up with to follow an old widow back to a foreign country. In Bethlehem she worked in the fields gleaning leftover grain. She caught the attention of Boaz, a wealthy relative, who honoured her character and showed her exceptional kindness. He eventually redeemed her under the levirate law, and she became the great-grandmother of David. Moabites were historically excluded from Israel\'s assembly for ten generations (Deuteronomy 23:3) \u2014 yet Ruth became an ancestor of the Messiah.',
+    significance:'Ruth\'s love declaration \u2014 Whither thou goest, I will go \u2014 has been quoted at countless weddings for 3,000 years. But it was spoken to a mother-in-law, not a husband. It is a declaration of covenant loyalty that mirrors God\'s own hesed (steadfast love) toward His people. Grace for the Foreigner.' },
+  { id:104, era:'women', gen:'The Five Women', name:'Bathsheba',  years:'~1000 BC',
+    teaser:'Called only "the wife of Uriah" by Matthew \u2014 a deliberate reminder of David\'s great sin.',
+    verse:'"David was the father of Solomon, whose mother had been Uriah\'s wife." \u2014 Matthew 1:6',
+    ref:'2 Samuel 11\u201312; 1 Kings 1\u20132; Psalm 51; Matthew 1:6',
+    body:'Matthew does not name Bathsheba in the genealogy \u2014 he calls her "the wife of Uriah." This is intentional. It forces every reader to remember the story: David saw Bathsheba bathing from his rooftop. He sent for her. He committed adultery with her. When she became pregnant, he tried to cover it up by recalling her husband Uriah from battle \u2014 but Uriah, a man of extraordinary military honour, refused to go home while his comrades were still at war. David then ordered Uriah placed at the front of the most dangerous fighting and had his cover deliberately withdrawn. Uriah was killed. David married Bathsheba. The prophet Nathan confronted David with the parable of the lamb, and David\'s devastated confession became Psalm 51. The child of the adultery died. Their second son was Solomon \u2014 who built the Temple and became the wisest king in history.',
+    significance:'Bathsheba was a victim of royal power before she became a queen mother. Matthew\'s insistence on calling her "Uriah\'s wife" is not about shaming her \u2014 it is about refusing to sanitise David\'s sin. The Messiah descended through a line that included one of the darkest chapters of Israel\'s history. Grace for the Broken.' },
+  { id:105, era:'women', gen:'The Five Women', name:'Mary',       years:'~18 BC \u2013 ~AD 48',
+    teaser:'The young woman from Nazareth whose yes to God carried the Son of God.',
+    verse:'"I am the Lord\'s servant. May your word to me be fulfilled." \u2014 Luke 1:38',
+    ref:'Luke 1:26\u201356; Matthew 1:18\u201325; John 2:1\u201311; 19:25\u201327; Acts 1:14',
+    body:'Mary was a young woman from Nazareth \u2014 probably a teenager by first-century Jewish betrothal customs \u2014 when the angel Gabriel appeared to her. His greeting, "Greetings, you who are highly favoured! The Lord is with you," confused and troubled her. The message that followed was staggering: she would become pregnant by the Holy Spirit and bear the Son of God. Her response \u2014 after only one practical question about how this could happen as a virgin \u2014 was immediate, complete, and unconditional: "I am the Lord\'s servant. May your word to me be fulfilled." She then ran to her cousin Elizabeth \u2014 who was miraculously pregnant with John the Baptist \u2014 and sang the Magnificat (Luke 1:46\u201355), one of Scripture\'s greatest theological hymns, echoing Hannah\'s prayer, the Psalms, and the prophets. She is the only person in Scripture who knew Jesus both before His birth and at His resurrection.',
+    significance:'Mary is the final woman in the genealogy and the hinge of the incarnation. Every generation of promise-keeping led to this young woman\'s willingness. The Son of God required a human mother \u2014 and He chose a willing servant girl from an obscure village. Her Magnificat shows she fully understood the theological magnitude of what was happening. Grace for the Willing.' },
+];
+
+const ALL_PEOPLE = [...PEOPLE, ...WOMEN_DATA];
+
+// -------------------------------------------------------
+//  QUIZ QUESTIONS
+// -------------------------------------------------------
+const QUIZ_QUESTIONS = [
+  { q:"Which book of the Bible contains the primary genealogy of Jesus in Matthew's Gospel?", opts:["Genesis","Ruth","Matthew 1","1 Chronicles"], correct:2, explanation:"Matthew 1:1\u201317 lists all 42 generations from Abraham to Jesus, deliberately structured in three groups of 14." },
+  { q:"What does the name 'Perez' mean, and why is it significant?", opts:["Promised one","Breach \u2014 he burst out first unexpectedly","Righteous king","Son of the covenant"], correct:1, explanation:"Perez means 'breach' \u2014 he burst out first during a complicated birth with his twin Zerah. His unexpected breakthrough is a picture of how God works through unlikely beginnings." },
+  { q:"Which of the five women in the genealogy was a Moabitess who declared 'Your people shall be my people'?", opts:["Tamar","Rahab","Ruth","Bathsheba"], correct:2, explanation:"Ruth the Moabitess spoke these famous words to her mother-in-law Naomi (Ruth 1:16). Despite being from a people historically excluded from Israel's assembly, she entered the messianic line by faith." },
+  { q:"What eternal covenant did God make with David in 2 Samuel 7?", opts:["That Israel would never be defeated in battle","That his house and throne would be established forever","That the Temple would stand forever","That Jerusalem would never be conquered"], correct:1, explanation:"2 Samuel 7:16 \u2014 'Your house and your kingdom will endure forever before me; your throne will be established forever.' This Davidic Covenant is the reason Jesus must be 'Son of David.'" },
+  { q:"What was the curse God pronounced on Jeconiah (Jeremiah 22:30), and how is it resolved?", opts:["His descendants would be slaves","No descendant would sit on David's throne \u2014 resolved by Jesus having both Mary's bloodline and Joseph's legal title","He would have no children \u2014 resolved because he did have children","He would die in exile \u2014 resolved because he was released"], correct:1, explanation:"Jeremiah 22:30 said no descendant of Jeconiah would 'sit on David's throne.' Jesus' legal claim came through Joseph (Jeconiah's line), but His biological Davidic bloodline came through Mary, via Nathan \u2014 bypassing Jeconiah entirely." },
+  { q:"How many generations does Matthew divide the genealogy into, and how many in each group?", opts:["Four groups of ten","Two groups of twenty-one","Three groups of fourteen","Seven groups of six"], correct:2, explanation:"Matthew 1:17 explicitly states: 'fourteen generations from Abraham to David, fourteen from David to the exile, and fourteen from the exile to the Messiah.' Three epochs of fourteen \u2014 probably using gematria (David's name in Hebrew = 14)." },
+  { q:"Which king of Judah is famous for sending singers to march ahead of his army in battle \u2014 and winning?", opts:["Hezekiah","Josiah","Jehoshaphat","Asa"], correct:2, explanation:"2 Chronicles 20: Jehoshaphat appointed singers to go before the army singing 'Give thanks to the LORD, for his love endures forever.' When they began to sing, God set ambushes among the enemy. The army of Judah found only corpses." },
+  { q:"Boaz is described as a 'kinsman-redeemer' (goel). What theological picture does this create?", opts:["A picture of Israel returning from exile","A picture of Christ redeeming His people \u2014 paying the full price to claim the rejected as His own","A picture of Moses leading the Israelites","A picture of Solomon building the Temple"], correct:1, explanation:"Boaz willingly paid the full redemption price for Ruth when a closer kinsman would not. He noticed the rejected foreigner, provided for her generously, and took her as his own. Each detail mirrors Jesus' redemption of His people." },
+  { q:"What was remarkable about Manasseh \u2014 the most wicked king of Judah?", opts:["He defeated Babylon single-handedly","He reigned for 55 years, committed the worst idolatry, yet repented in captivity and was restored","He wrote half of the Psalms","He never worshipped any idol"], correct:1, explanation:"2 Chronicles 33: After the most thoroughly wicked 55-year reign in Judah's history \u2014 including child sacrifice and filling Jerusalem with innocent blood \u2014 Manasseh was captured by Assyria, humbled himself, and God restored him. The genealogy of Jesus passes through the most forgiven sinner in it." },
+  { q:"Isaiah 6:1 says his great vision occurred 'in the year that King Uzziah died.' What happened to Uzziah?", opts:["He was killed in battle","He was struck with leprosy for entering the Temple to burn incense \u2014 reserved for priests only","He voluntarily abdicated","He drowned in the Jordan River"], correct:1, explanation:"2 Chronicles 26: Uzziah entered the Temple to burn incense \u2014 a role forbidden to anyone who was not a consecrated priest. When confronted, he became angry. Immediately, leprosy broke out on his forehead. He lived in isolation until his death." },
+  { q:"Which woman in the genealogy is called only 'the wife of Uriah' by Matthew \u2014 and why?", opts:["Tamar \u2014 to remind us of Judah's sin","Bathsheba \u2014 to force readers to remember David's adultery and Uriah's murder","Rahab \u2014 because she was a foreigner","Ruth \u2014 to honour Naomi"], correct:1, explanation:"Matthew 1:6 deliberately says 'David was the father of Solomon, whose mother had been Uriah's wife' \u2014 not naming Bathsheba. This forces every reader to recall the full story: David's abuse of power, adultery, and Uriah's arranged murder." },
+  { q:"What does Matthew's inclusion of five women in the genealogy signal about the Messiah's mission?", opts:["That women are superior to men in God's plan","That only Israelite bloodlines matter","That the Messiah came for all people \u2014 Gentiles, outsiders, the broken, and the unexpected","That the Old Testament law did not apply to Jesus' ancestors"], correct:2, explanation:"Tamar (Canaanite), Rahab (Canaanite prostitute), Ruth (Moabitess), Bathsheba (wife of a Hittite), and Mary (an ordinary Jewish girl) together announce: the Messiah's grace reaches every person, every background, every past. His genealogy is the Gospel in miniature." },
+];
+
+// -------------------------------------------------------
+//  STATE
+// -------------------------------------------------------
+let currentFilter = 'all';
+let currentModal  = -1;
+let quizIndex     = 0;
+let quizScore     = 0;
+let quizAnswered  = [];
+let modalPeople   = [];
+
+// -------------------------------------------------------
+//  RENDER ERAS
+// -------------------------------------------------------
+function eraColor(era) {
+  if (era.includes('era1')) return 'era1';
+  if (era.includes('era2')) return 'era2';
+  if (era.includes('era3')) return 'era3';
+  if (era.includes('women')) return 'women';
+  return 'era1';
+}
+
+function renderEras(people) {
+  const container = document.getElementById('eras-container');
+  container.innerHTML = '';
+
+  const noResults = document.getElementById('no-results');
+
+  // Filter
+  let filtered;
+  if (currentFilter === 'all') {
+    filtered = people.filter(p => p.id <= 42);
+  } else if (currentFilter === 'women') {
+    filtered = people.filter(p => p.era.includes('women'));
+  } else {
+    filtered = people.filter(p => p.era.includes(currentFilter) && p.id <= 42);
+  }
+
+  if (filtered.length === 0) {
+    noResults.style.display = 'block';
+    return;
+  }
+  noResults.style.display = 'none';
+
+  // Group into eras
+  const groups = { era1:[], era2:[], era3:[] };
+  filtered.forEach(p => {
+    if (p.era.includes('era1')) groups.era1.push(p);
+    if (p.era.includes('era2') && !p.era.includes('era1')) groups.era2.push(p);
+    if (p.era.includes('era3') && !p.era.includes('era2') && !p.era.includes('era1')) groups.era3.push(p);
+  });
+
+  const eraDefs = [
+    { key:'era1', label:'ERA I', title:'The Patriarch Age', meta:'~2000 BC \u2013 1000 BC - Generations 1\u201314 - Genesis, Ruth, 1 Samuel', cls:'e1' },
+    { key:'era2', label:'ERA II', title:'The Age of Kings', meta:'~1000 BC \u2013 586 BC - Generations 15\u201328 - 1&2 Kings, Chronicles', cls:'e2' },
+    { key:'era3', label:'ERA III', title:'Exile to Christ', meta:'~586 BC \u2013 4 BC - Generations 29\u201342 - Ezra, Nehemiah, Matthew 1', cls:'e3' },
+  ];
+
+  eraDefs.forEach(ed => {
+    const arr = groups[ed.key];
+    if (!arr.length) return;
+
+    const sec = document.createElement('div');
+    sec.className = 'era-section';
+    sec.id = 'era-section-' + ed.key;
+
+    sec.innerHTML = `
+      <div class="era-header" onclick="toggleEra(this)">
+        <span class="era-badge ${ed.cls}">${ed.label}</span>
+        <span class="era-title-text">${ed.title}</span>
+        <span class="era-meta">${ed.meta}</span>
+        <span class="era-chevron">v</span>
+      </div>
+      <div class="era-grid" id="grid-${ed.key}"></div>`;
+
+    container.appendChild(sec);
+
+    const grid = sec.querySelector('.era-grid');
+    arr.forEach((p, i) => {
+      const card = document.createElement('div');
+      card.className = `gen-card ${eraColor(p.era)}`;
+      card.style.animationDelay = (i * 0.04) + 's';
+      card.innerHTML = `
+        <div class="card-num">${p.gen.toUpperCase()}</div>
+        <div class="card-name">${p.name}</div>
+        <div class="card-years">${p.years}</div>
+        <div class="card-teaser">${p.teaser}</div>
+        <div class="card-verse-hover">${p.verse}</div>
+        <div class="card-click-hint">CLICK TO READ MORE -></div>`;
+      card.addEventListener('click', () => openModal(p.id));
+      grid.appendChild(card);
+    });
+  });
+
+  // Add women section if filter is women or all
+  const womenArr = (currentFilter === 'women' || currentFilter === 'all')
+    ? WOMEN_DATA : [];
+
+  if (womenArr.length > 0) {
+    const sec = document.createElement('div');
+    sec.className = 'era-section';
+    sec.id = 'era-section-women';
+    sec.innerHTML = `
+      <div class="era-header" onclick="toggleEra(this)">
+        <span class="era-badge" style="background:var(--women);color:#ffb0c0;border:1px solid var(--women-light)">WOMEN</span>
+        <span class="era-title-text">The Five Women of the Genealogy</span>
+        <span class="era-meta">Tamar - Rahab - Ruth - Bathsheba - Mary \u2014 Matthew's radical inclusions</span>
+        <span class="era-chevron">v</span>
+      </div>
+      <div class="era-grid" id="grid-women"></div>`;
+    container.appendChild(sec);
+
+    const grid = sec.querySelector('.era-grid');
+    womenArr.forEach((p, i) => {
+      const card = document.createElement('div');
+      card.className = 'gen-card women';
+      card.style.animationDelay = (i * 0.06) + 's';
+      card.innerHTML = `
+        <div class="card-num">${p.gen.toUpperCase()}</div>
+        <div class="card-name">${p.name}</div>
+        <div class="card-years">${p.years}</div>
+        <div class="card-teaser">${p.teaser}</div>
+        <div class="card-verse-hover">${p.verse}</div>
+        <div class="card-click-hint">CLICK TO READ MORE -></div>`;
+      card.addEventListener('click', () => openModal(p.id));
+      grid.appendChild(card);
+    });
+  }
+}
+
+function toggleEra(header) {
+  header.parentElement.classList.toggle('collapsed');
+}
+
+function jumpToEra(eraKey) {
+  // Activate pill
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  document.querySelector('.pill-' + eraKey).classList.add('active');
+  currentFilter = eraKey;
+  renderEras(PEOPLE);
+  setTimeout(() => {
+    const el = document.getElementById('era-section-' + eraKey);
+    if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+  }, 100);
+}
+
+// -------------------------------------------------------
+//  MODAL
+// -------------------------------------------------------
+function openModal(id) {
+  const person = ALL_PEOPLE.find(p => p.id === id);
+  if (!person) return;
+
+  // Build navigable list from current visible cards
+  const visibleIds = Array.from(document.querySelectorAll('.gen-card'))
+    .map(c => { const nm = c.querySelector('.card-name').textContent.trim(); const p = ALL_PEOPLE.find(x => x.name === nm); return p ? p.id : null; })
+    .filter(Boolean);
+  modalPeople = visibleIds;
+  currentModal = modalPeople.indexOf(id);
+
+  renderModal(person);
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function renderModal(person) {
+  const eraC = eraColor(person.era);
+  const eraColors = { era1: 'var(--era1-light)', era2: 'var(--era2-light)', era3: 'var(--era3-light)', women: 'var(--women-light)' };
+  const eraLabels = { era1:'ERA I \u2014 PATRIARCH AGE', era2:'ERA II \u2014 AGE OF KINGS', era3:'ERA III \u2014 EXILE TO CHRIST', women:'THE FIVE WOMEN' };
+
+  const topBar = document.getElementById('modal-top-bar');
+  topBar.style.background = eraColors[eraC] || 'var(--gold)';
+
+  const badge = document.getElementById('modal-era-badge');
+  badge.textContent = eraLabels[eraC] || 'GENEALOGY';
+  badge.style.background = 'rgba(255,255,255,.05)';
+  badge.style.color = eraColors[eraC] || 'var(--gold)';
+  badge.style.border = '1px solid ' + (eraColors[eraC] || 'var(--gold)');
+
+  document.getElementById('modal-gen').textContent  = person.gen.toUpperCase();
+  document.getElementById('modal-name').textContent = person.name;
+  document.getElementById('modal-years').textContent = person.years + ' - ' + person.ref;
+  document.getElementById('modal-body').textContent  = person.body;
+
+  document.getElementById('modal-scripture').innerHTML = `
+    <div class="modal-scripture-ref">KEY SCRIPTURE</div>
+    <div class="modal-scripture-text">${person.verse}</div>`;
+
+  document.getElementById('modal-significance').innerHTML = `
+    <div class="sig-label">SIGNIFICANCE IN THE GENEALOGY</div>
+    <div class="sig-text">${person.significance}</div>`;
+
+  const pos = currentModal + 1;
+  const total = modalPeople.length;
+  document.getElementById('modal-pos').textContent = pos + ' of ' + total;
+  document.getElementById('modal-prev').disabled = currentModal <= 0;
+  document.getElementById('modal-next').disabled = currentModal >= total - 1;
+
+  // Scroll modal to top
+  document.getElementById('modal').scrollTop = 0;
+}
+
+function navigateModal(dir) {
+  const next = currentModal + dir;
+  if (next < 0 || next >= modalPeople.length) return;
+  currentModal = next;
+  const person = ALL_PEOPLE.find(p => p.id === modalPeople[currentModal]);
+  if (person) renderModal(person);
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModalDirect();
+}
+function closeModalDirect() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModalDirect();
+  if (document.getElementById('modal-overlay').classList.contains('open')) {
+    if (e.key === 'ArrowRight') navigateModal(1);
+    if (e.key === 'ArrowLeft')  navigateModal(-1);
+  }
+});
+
+// -------------------------------------------------------
+//  SEARCH
+// -------------------------------------------------------
+document.getElementById('search-input').addEventListener('input', function() {
+  const q = this.value.trim().toLowerCase();
+  if (!q) {
+    renderEras(PEOPLE);
+    return;
+  }
+  const results = ALL_PEOPLE.filter(p =>
+    p.name.toLowerCase().includes(q) ||
+    p.teaser.toLowerCase().includes(q) ||
+    p.body.toLowerCase().includes(q) ||
+    p.ref.toLowerCase().includes(q)
+  );
+  if (results.length === 0) {
+    document.getElementById('eras-container').innerHTML = '';
+    document.getElementById('no-results').style.display = 'block';
+  } else {
+    document.getElementById('no-results').style.display = 'none';
+    renderSearchResults(results);
+  }
+});
+
+function renderSearchResults(results) {
+  const container = document.getElementById('eras-container');
+  container.innerHTML = '';
+  const sec = document.createElement('div');
+  sec.className = 'era-section';
+  sec.innerHTML = `
+    <div class="era-header">
+      <span class="era-badge e1">SEARCH RESULTS</span>
+      <span class="era-title-text">${results.length} result${results.length>1?'s':''} found</span>
+      <span class="era-chevron">v</span>
+    </div>
+    <div class="era-grid" id="grid-search"></div>`;
+  container.appendChild(sec);
+  const grid = sec.querySelector('.era-grid');
+  results.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = `gen-card ${eraColor(p.era)}`;
+    card.style.animationDelay = (i * 0.05) + 's';
+    card.innerHTML = `
+      <div class="card-num">${p.gen.toUpperCase()}</div>
+      <div class="card-name">${p.name}</div>
+      <div class="card-years">${p.years}</div>
+      <div class="card-teaser">${p.teaser}</div>
+      <div class="card-verse-hover">${p.verse}</div>
+      <div class="card-click-hint">CLICK TO READ MORE -></div>`;
+    card.addEventListener('click', () => openModal(p.id));
+    grid.appendChild(card);
+  });
+}
+
+// -------------------------------------------------------
+//  FILTER PILLS
+// -------------------------------------------------------
+document.querySelectorAll('.pill').forEach(pill => {
+  pill.addEventListener('click', function() {
+    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    this.classList.add('active');
+    currentFilter = this.dataset.filter;
+    document.getElementById('search-input').value = '';
+    renderEras(PEOPLE);
+  });
+});
+
+// -------------------------------------------------------
+//  QUIZ
+// -------------------------------------------------------
+function renderQuizProgress() {
+  const prog = document.getElementById('quiz-progress');
+  prog.innerHTML = QUIZ_QUESTIONS.map((_, i) => {
+    let cls = i === quizIndex ? 'qp-dot current' : 'qp-dot';
+    if (quizAnswered[i] === true)  cls = 'qp-dot answered-correct';
+    if (quizAnswered[i] === false) cls = 'qp-dot answered-wrong';
+    return `<div class="${cls}"></div>`;
+  }).join('');
+  document.getElementById('quiz-score-display').textContent = `Score: ${quizScore} / ${QUIZ_QUESTIONS.length}`;
+}
+
+function renderQuizQuestion() {
+  const q = QUIZ_QUESTIONS[quizIndex];
+  document.getElementById('quiz-question').textContent = `Q${quizIndex+1} of ${QUIZ_QUESTIONS.length}: ${q.q}`;
+  const opts = document.getElementById('quiz-options');
+  opts.innerHTML = q.opts.map((o, i) =>
+    `<button class="quiz-opt" onclick="answerQuiz(${i})">${o}</button>`
+  ).join('');
+  document.getElementById('quiz-feedback').className = 'quiz-feedback';
+  document.getElementById('quiz-feedback').textContent = '';
+  document.getElementById('quiz-next-btn').style.display = 'none';
+  renderQuizProgress();
+}
+
+function answerQuiz(idx) {
+  const q = QUIZ_QUESTIONS[quizIndex];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach(o => o.disabled = true);
+
+  const isCorrect = idx === q.correct;
+  opts[idx].classList.add(isCorrect ? 'correct' : 'wrong');
+  if (!isCorrect) opts[q.correct].classList.add('correct');
+
+  const fb = document.getElementById('quiz-feedback');
+  fb.textContent = (isCorrect ? ' Correct! ' : ' Not quite. ') + q.explanation;
+  fb.className = 'quiz-feedback show ' + (isCorrect ? 'right' : 'wrong');
+
+  if (isCorrect) quizScore++;
+  quizAnswered[quizIndex] = isCorrect;
+  renderQuizProgress();
+
+  if (quizIndex < QUIZ_QUESTIONS.length - 1) {
+    document.getElementById('quiz-next-btn').style.display = 'inline-block';
+  } else {
+    const fb2 = document.getElementById('quiz-feedback');
+    fb2.textContent += ` | Final Score: ${quizScore} / ${QUIZ_QUESTIONS.length}`;
+  }
+}
+
+function nextQuestion() {
+  quizIndex++;
+  renderQuizQuestion();
+}
+
+function resetQuiz() {
+  quizIndex   = 0;
+  quizScore   = 0;
+  quizAnswered = [];
+  renderQuizQuestion();
+}
+
+// -------------------------------------------------------
+//  INIT
+// -------------------------------------------------------
+renderEras(PEOPLE);
+renderQuizQuestion();
+</script>
+</body>
+</html>
