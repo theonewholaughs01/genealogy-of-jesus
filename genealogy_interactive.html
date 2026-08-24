@@ -342,6 +342,14 @@ body::before {
 }
 .modal-scripture-text { font-style:italic; color:var(--gold-pale); font-size:1rem; line-height:1.7; }
 
+.modal-source-note {
+  margin-bottom:1rem; padding:.75rem .9rem;
+  border:1px solid rgba(232,184,75,.28); border-radius:3px;
+  background:rgba(232,184,75,.045); color:var(--text);
+  font-size:.88rem; line-height:1.55;
+}
+.modal-source-note strong { color:var(--gold-light); font-family:'Cinzel',serif; font-size:.64rem; letter-spacing:.1em; }
+
 .modal-significance {
   background:rgba(255,255,255,.03);
   border:1px solid var(--border);
@@ -604,6 +612,7 @@ body::before {
       <div class="modal-section-label">STORY & SIGNIFICANCE</div>
       <div class="modal-body" id="modal-body"></div>
       <div class="modal-scripture" id="modal-scripture"></div>
+      <div class="modal-source-note" id="modal-source-note"></div>
       <div class="modal-significance" id="modal-significance"></div>
       <div class="modal-nav">
         <button class="modal-nav-btn" id="modal-prev" onclick="navigateModal(-1)">&#8592; PREVIOUS</button>
@@ -904,14 +913,7 @@ const PEOPLE = [
     body:'Joseph the carpenter is one of Scripture\'s most extraordinary figures \u2014 precisely because of what he chose not to say. When Mary was found to be pregnant before their marriage, Joseph\'s first instinct was quiet compassion: he would divorce her privately rather than expose her to public shaming (and under Jewish law, possible stoning). Then an angel appeared to him in a dream and told him the truth. Joseph did not question. He did not demand signs. He simply obeyed: he took Mary home as his wife, he named the child Jesus as commanded, he fled to Egypt with his family on a night\'s notice. He is mentioned in the nativity accounts and then almost disappears \u2014 we hear only one more story of him, when Jesus is 12 and stays behind in Jerusalem. He is thought to have died before Jesus began His ministry. He was a carpenter, a protector, a man of silence and obedience.',
     significance:'Joseph\'s legal adoption of Jesus \u2014 the naming in Matthew 1:25 \u2014 is the moment the legal royal title of Son of David passed to Jesus. By this one act of obedience, a humble carpenter placed the Messiah within the Davidic line as required by prophecy. The entire legal mechanism of the genealogy rests on Joseph\'s yes.' },
 
-  { id:41, era:'era3 women', gen:'Generation 41', name:'Mary', years:'~18 BC \u2013 ~AD 48',
-    teaser:'The young woman from Nazareth whose yes changed the universe.',
-    verse:'"I am the Lord\'s servant. May your word to me be fulfilled." \u2014 Luke 1:38',
-    ref:'Luke 1:26\u201356; Matthew 1:18\u201325; John 19:25\u201327',
-    body:'Mary (Miriam in Hebrew) was a young woman \u2014 probably 13\u201316 years old by cultural norms \u2014 living in Nazareth, betrothed to Joseph. The angel Gabriel appeared to her and said: "Do not be afraid, Mary; you have found favour with God. You will conceive and give birth to a son, and you are to call him Jesus. He will be great and will be called the Son of the Most High. The Lord God will give him the throne of his father David, and he will reign over Jacob\'s descendants forever; his kingdom will never end." Mary asked only one practical question: "How will this be, since I am a virgin?" And when she received the answer, she said simply: "I am the Lord\'s servant. May your word to me be fulfilled." Her response is one of the most profound statements of faith in human history. She then went to her cousin Elizabeth and sang the Magnificat \u2014 one of Scripture\'s greatest hymns of praise. She watched her son be crucified. She was in the upper room at Pentecost.',
-    significance:'Mary is the hinge of the incarnation. All 41 generations before her existed to bring the right woman to this moment. Her biological DNA is Jesus\' human DNA. The Son of God chose to enter the world through a young girl\'s willing yes. The Magnificat (Luke 1:46\u201355) shows she understood the theological weight of what was happening \u2014 her song echoes Hannah, the Psalms, and the prophets.' },
-
-  { id:42, era:'era3', gen:'Generation 42', name:'Jesus Christ', years:'~4 BC \u2013 AD 33',
+  { id:42, era:'era3', gen:'Matthew 1:16\u201317', name:'Jesus Christ', years:'First-century Judea',
     teaser:'The fulfillment of every name, every era, every promise. Emmanuel \u2014 God with us.',
     verse:'"The Word became flesh and made his dwelling among us." \u2014 John 1:14',
     ref:'Matthew 1:1\u201317; Luke 3:23\u201338; John 1:1\u201314; Revelation 22:16',
@@ -956,12 +958,6 @@ const WOMEN_DATA = [
 const ALL_PEOPLE = [...PEOPLE, ...WOMEN_DATA];
 
 const SOURCE_AWARE_OVERRIDES = {
-  41: {
-    gen:'Context figure',
-    years:'First-century Judea',
-    body:'Mary (Miriam in Hebrew) is introduced in the birth narratives as a young woman from Nazareth betrothed to Joseph. Her specific age is not stated in the biblical text. Luke records Gabriel’s announcement, Mary’s response, and the Magnificat (Luke 1:26–56); the Gospels also place her at Jesus’ crucifixion, and Acts 1:14 names her among the believers after the ascension.',
-    significance:'Mary is central to the incarnation narratives. This study highlights her with the women associated with Matthew’s genealogy while distinguishing Matthew’s written line, which moves from Jacob to Joseph and then to Jesus (Matthew 1:16).'
-  },
   42: {
     gen:'Matthew 1:16–17',
     years:'First-century Judea',
@@ -1014,6 +1010,75 @@ Object.assign(ALL_PEOPLE.find(person => person.id === 40), {
   teaser:'Mary’s husband, called a righteous man in Matthew’s birth narrative and named in Matthew’s genealogy.',
   body:'Matthew 1:16 identifies Joseph as the husband of Mary, of whom Jesus was born. Matthew 1–2 portrays him as responsive to God’s instruction in dreams and as the legal father within Jesus’ household; his age and precise dates are not given.',
   significance:'Joseph is the final named man in Matthew’s genealogy before the distinctive wording about Jesus’ birth from Mary. Matthew’s phrasing is central to the Gospel’s presentation of Jesus’ identity.'
+});
+
+const broadEraLabel = person => {
+  if (person.id === 42 || person.id === 105 || person.id === 40) return 'First-century Judea';
+  if (person.id === 14 || person.id === 104) return 'United monarchy era (broad)';
+  if (person.id >= 15 && person.id <= 27) return 'Kingdom of Judah era (broad)';
+  if (person.id === 28) return 'Babylonian-exile era (broad)';
+  if (person.id >= 29 && person.id <= 39) return 'Post-exilic era (date uncertain)';
+  if (person.id >= 101 && person.id <= 103) return 'Patriarchal or Judges-era context (date uncertain)';
+  return 'Patriarchal era (date uncertain)';
+};
+
+ALL_PEOPLE.forEach(person => {
+  person.years = broadEraLabel(person);
+  person.sourceNote = `Textual basis: ${person.ref}. This card distinguishes what the cited biblical text explicitly states from later historical reconstruction and devotional reflection. Dates are broad study labels; any claim that goes beyond the cited text should be read as interpretation or tradition, not as a settled biographical fact.`;
+});
+
+Object.assign(ALL_PEOPLE.find(person => person.id === 105), {
+  gen:'Contextual women-study record',
+  sourceNote:'Textual basis: Matthew 1:16; Luke 1:26–56; John 19:25–27; Acts 1:14. Matthew names Mary as Jesus’ mother after naming Joseph as her husband. Grouping Mary with the four women Matthew explicitly names earlier in the genealogy is a study choice, not Matthew’s exact five-woman formula.'
+});
+
+ALL_PEOPLE.filter(person => person.id >= 101 && person.id <= 104).forEach(person => {
+  person.gen = 'Named in Matthew 1';
+});
+
+const CARD_BY_CARD_AUDIT = {
+  1:['Genesis describes Abraham’s call and covenant; Matthew begins its genealogy with him.','Genesis 12–25 presents Abraham as the ancestor of Isaac and the recipient of promises concerning descendants, land, and blessing. Matthew 1:2 places him at the opening of its genealogy.','Matthew’s use of Abraham frames Jesus within Israel’s ancestral story. Connections between Abraham’s promises and later Christian theology are interpretive reflection.'],
+  2:['Genesis presents Isaac as Abraham and Sarah’s son and as the father of Jacob.','Genesis 21–35 narrates Isaac’s birth, family, and role in the continuing ancestral line. Matthew 1:2 names Isaac between Abraham and Jacob.','The cited passages, rather than later typological readings, are the primary basis for this card.'],
+  3:['Genesis identifies Jacob, also called Israel, as the father of Judah and his brothers.','Genesis 25–50 narrates Jacob’s family, his renaming as Israel, and the emergence of the tribes. Matthew 1:2 names him as Judah’s father.','Matthew’s genealogy follows the line through Judah; further symbolic connections are study interpretation.'],
+  4:['Matthew names Judah and Tamar as the parents of Perez and Zerah.','Genesis 38 tells the difficult family account involving Judah and Tamar, while Genesis 49 records Jacob’s blessing of Judah. Matthew 1:3 selects Perez for the genealogy.','The card follows the named relationship in Matthew and leaves broader moral or theological conclusions to the reader.'],
+  5:['Perez is named as Tamar’s son by Judah and as an ancestor in the line to David.','Genesis 38:27–30 names Perez and Zerah; Ruth 4:18–22 continues Perez’s line toward David. Matthew 1:3 includes Perez.','Perez’s inclusion is an explicit genealogical fact; devotional themes drawn from it are interpretive reflection.'],
+  6:['Hezron is a named link in the Judahite genealogies.','Hezron appears in the genealogical lists of Genesis, Ruth, and Matthew. The cited texts do not offer a standalone biography.','This card preserves the name’s place in the lineage without adding unrecorded life details.'],
+  7:['Ram is named in the genealogical sequence from Hezron to Amminadab.','Ruth 4 and Matthew 1 name Ram in the ancestry that leads to David. The biblical text does not provide a narrative biography here.','The significance is genealogical continuity rather than a reconstructed personal story.'],
+  8:['Amminadab is named in the genealogies and in Israel’s wilderness lists.','Numbers identifies Amminadab as Nahshon’s father and associates the family with Judah; Ruth and Matthew place him in the line toward David.','This card follows the cited names and relationships without assigning unsupported historical events.'],
+  9:['Nahshon is named as a leader of Judah in the wilderness generation.','Numbers 1–10 names Nahshon son of Amminadab among Judah’s leaders, and Matthew places him in the genealogy. The Red Sea story sometimes associated with him belongs to later Jewish tradition, not the biblical narrative.','Nahshon’s biblical role is clear in the cited lists; the later tradition should remain explicitly distinct.'],
+  10:['Matthew names Salmon as Boaz’s father and Rahab as Boaz’s mother.','Matthew 1:5 supplies the family relationship; Joshua tells Rahab’s story. The biblical text does not identify Salmon as one of Joshua’s spies.','This card does not turn a possible later identification into a settled fact.'],
+  11:['The book of Ruth presents Boaz as a Bethlehem landowner and kinsman of Naomi’s family.','Ruth 2–4 narrates Boaz’s interactions with Ruth and records Obed as their son. Matthew 1:5 includes Boaz in the genealogy.','Christian readings often use Boaz as a redemption motif; that comparison is a theological interpretation.'],
+  12:['Ruth names Obed as the son of Boaz and Ruth and the father of Jesse.','Ruth 4:13–22 and 1 Chronicles 2 include Obed in the line to David. The text supplies limited biographical detail beyond these relationships.','The card highlights the explicit family link without extrapolating a fuller biography.'],
+  13:['Jesse is identified as David’s father in Ruth and Samuel.','Ruth 4:22 closes the genealogy with Jesse and David; 1 Samuel 16 introduces Jesse’s household in Bethlehem. Isaiah later uses Jesse’s family line in prophetic imagery.','The cited passages provide the textual basis for Jesse’s place in the genealogy.'],
+  14:['David is Israel’s king and the central royal figure in Matthew’s genealogy.','Samuel and Kings narrate David’s rise, reign, family, and covenant; Matthew 1:1 and 1:6 explicitly identify Jesus as David’s descendant.','Messianic readings of Davidic texts are important Christian interpretation and should be read alongside the cited passages.'],
+  15:['Solomon succeeds David as king and is named in Matthew’s royal line.','1 Kings 1–11 presents Solomon’s accession, temple building, wisdom, wealth, and later unfaithfulness. Matthew 1:6 continues the genealogy through Solomon.','The genealogy follows the David-to-Solomon royal line found in Matthew.'],
+  16:['Rehoboam succeeds Solomon and rules Judah after the kingdom divides.','1 Kings 12–14 and 2 Chronicles 10–12 narrate Rehoboam’s reign and the division of the kingdom. Matthew 1:7 names him in the line.','This card keeps the biblical political history distinct from generalized judgments about an individual’s entire legacy.'],
+  17:['Abijah, also called Abijam, is a king of Judah named in Matthew’s genealogy.','1 Kings 15 and 2 Chronicles 13 provide accounts of Abijah’s reign. Matthew 1:7 lists him between Rehoboam and Asa.','The card directs readers to both accounts, which emphasize different aspects of the reign.'],
+  18:['Asa is a king of Judah remembered in Kings and Chronicles for reform and later conflict.','1 Kings 15 and 2 Chronicles 14–16 narrate Asa’s reign, including his religious reforms and final years. Matthew 1:7 lists Asa in the line.','The theological assessment of Asa belongs to the biblical authors; this study does not add a reconstructed inner life.'],
+  19:['Jehoshaphat is a king of Judah named in the royal sequence.','1 Kings 22 and 2 Chronicles 17–20 describe Jehoshaphat’s reign, teaching activity, alliances, and crisis prayer. Matthew 1:8 lists him in the genealogy.','Readers can examine the cited accounts directly for their own theological interpretation.'],
+  20:['Joram, also called Jehoram, is a king of Judah in Matthew’s genealogy.','2 Kings 8 and 2 Chronicles 21 narrate Joram’s reign and its political and religious setting. Matthew 1:8 names him in the line.','The card avoids treating later genealogical or devotional explanations as facts not stated in the cited texts.'],
+  21:['Uzziah, also called Azariah, is a king of Judah associated with a long reign.','2 Kings 15, 2 Chronicles 26, and Isaiah 6 provide the cited biblical accounts of Uzziah. Matthew 1:8 names him in the genealogy.','The texts themselves are the basis for describing his reign and its consequences.'],
+  22:['Jotham is a king of Judah named in the royal succession.','2 Kings 15 and 2 Chronicles 27 provide the biblical account of Jotham’s reign. Matthew 1:9 lists him in the genealogy.','The card preserves the textual record without assigning details beyond it.'],
+  23:['Ahaz is a king of Judah whose reign appears in Kings, Chronicles, and Isaiah.','2 Kings 16, 2 Chronicles 28, and Isaiah 7–8 describe Ahaz’s reign and its Assyrian-era context. Matthew 1:9 includes him in the genealogy.','Later Christian readings of Isaiah 7 are interpretive and should be distinguished from the historical setting of Ahaz’s reign.'],
+  24:['Hezekiah is a king of Judah remembered for reform and the Assyrian crisis.','2 Kings 18–20, 2 Chronicles 29–32, and Isaiah 36–39 provide the biblical accounts. Matthew 1:9 names Hezekiah in the royal line.','This card treats the cited narrative as the source rather than using later reconstruction to fill gaps.'],
+  25:['Manasseh is a king of Judah named in Matthew’s genealogy.','2 Kings 21 and 2 Chronicles 33 present complementary accounts of Manasseh’s long reign and, in Chronicles, his later humbling. Matthew 1:10 lists him in the line.','Claims drawn from later traditions are not treated as part of the biblical account.'],
+  26:['Amon is a king of Judah whose brief reign precedes Josiah.','2 Kings 21:19–26 and 2 Chronicles 33:21–25 describe Amon’s reign and death. Matthew 1:10 names him in the genealogy.','The card stays with the concise account supplied by the cited texts.'],
+  27:['Josiah is a king of Judah associated with temple repair and covenant renewal.','2 Kings 22–23 and 2 Chronicles 34–35 narrate Josiah’s reign and reforms. Matthew 1:10 includes him in the genealogy.','The theological interpretation of Josiah’s reforms belongs to the cited biblical narratives.'],
+  28:['Jeconiah is named by Matthew at the transition to the Babylonian deportation.','2 Kings 24, 2 Chronicles 36, Jeremiah 22, and Matthew 1 supply the cited textual background. The relationship of this material to the genealogies in Matthew and Luke remains debated.','No particular solution to the Jeconiah question is assumed by this card.'],
+  29:['Shealtiel is named in Matthew’s post-exilic genealogy and related biblical lists.','Matthew 1:12, Ezra 3:2, Haggai 1:1, and Luke 3:27 provide the relevant references. The differing family designations require careful reading.','This card identifies the textual complexity rather than forcing a single harmonization.'],
+  30:['Zerubbabel appears as a post-exilic leader in Ezra, Haggai, and Zechariah.','The cited books associate Zerubbabel with the return from exile and rebuilding of the temple; Matthew 1:12 includes him in the genealogy.','This card uses the post-exilic texts as its source and does not assign an exact life chronology.'],
+  40:['Matthew names Joseph as Mary’s husband and describes his role in the birth narrative.','Matthew 1–2 and Luke 2 present Joseph in the family’s early story. They do not give a date of birth, age, or a detailed later biography.','Matthew’s distinctive wording at 1:16 should guide any discussion of Joseph’s place in the genealogy.'],
+  42:['Matthew presents Jesus as Messiah, son of David, and son of Abraham.','Matthew 1:1–17 concludes with Jesus’ birth from Mary and names Joseph as Mary’s husband. Luke 3 provides a distinct genealogy through Nathan.','Christian explanations of how the two genealogies relate remain interpretations; neither list should be simplified into an unstated biological chart.'],
+  101:['Genesis 38 names Tamar as the mother of Perez and Zerah by Judah.','Genesis 38 supplies the difficult family narrative, and Matthew 1:3 names Tamar in the genealogy. The text does not identify Tamar’s ethnicity.','This card follows Matthew’s explicit naming of Tamar and leaves broader moral conclusions to careful reading.'],
+  102:['Joshua presents Rahab as a woman of Jericho who aided Israelite spies.','Joshua 2 and 6 narrate Rahab’s actions and rescue; Matthew 1:5 names Rahab as Boaz’s mother. The text does not call her an innkeeper or identify Salmon as a spy.','Rahab’s role in later Jewish and Christian interpretation should remain distinct from what Joshua and Matthew explicitly state.'],
+  103:['Ruth is a Moabite widow whose story is told in the book that bears her name.','Ruth 1–4 narrates her loyalty to Naomi, her marriage to Boaz, and Obed’s birth; Matthew 1:5 names Ruth in the genealogy.','The card relies on Ruth’s own narrative rather than adding a precise date or social reconstruction.'],
+  104:['Matthew refers to Bathsheba as “the wife of Uriah.”','2 Samuel 11–12 narrates David’s abuse of power, Uriah’s death, and the birth of Solomon; Matthew 1:6 preserves its distinctive wording.','Why Matthew chooses this wording is an interpretation, though it plainly recalls the narrated events.'],
+  105:['Matthew names Mary as Jesus’ mother, and Luke gives the most extensive birth-narrative account.','Matthew 1:16–25 and Luke 1–2 describe Mary in relation to Jesus’ birth; John 19 and Acts 1 supply later references. The texts do not state her age or provide a full biography.','Mary is shown here as a contextual study record, not as a numbered male link in Matthew’s written genealogy.']
+};
+
+Object.entries(CARD_BY_CARD_AUDIT).forEach(([id, [teaser, body, significance]]) => {
+  const person = ALL_PEOPLE.find(entry => entry.id === Number(id));
+  if (person) Object.assign(person, { teaser, body, significance });
 });
 
 // -------------------------------------------------------
@@ -1115,9 +1180,9 @@ function renderEras(people) {
   // Filter
   let filtered;
   if (currentFilter === 'all') {
-    filtered = people.filter(p => p.id <= 42 && p.id !== 41);
+    filtered = people.filter(p => p.id <= 42);
   } else if (currentFilter === 'women') {
-    filtered = people.filter(p => p.era.includes('women') && p.id !== 41);
+    filtered = people.filter(p => p.era.includes('women'));
   } else {
     filtered = people.filter(p => p.era.includes(currentFilter) && p.id <= 42);
   }
@@ -1282,6 +1347,8 @@ function renderModal(person) {
     <div class="modal-scripture-ref">KEY SCRIPTURE</div>
     <div class="modal-scripture-text">${person.verse}</div>`;
 
+  document.getElementById('modal-source-note').innerHTML = `<strong>SOURCE BOUNDARY</strong><br>${person.sourceNote || `Textual basis: ${person.ref}.`}`;
+
   document.getElementById('modal-significance').innerHTML = `
     <div class="sig-label">SIGNIFICANCE IN THE GENEALOGY</div>
     <div class="sig-text">${person.significance}</div>`;
@@ -1330,7 +1397,7 @@ document.getElementById('search-input').addEventListener('input', function() {
     renderEras(PEOPLE);
     return;
   }
-  const results = ALL_PEOPLE.filter(p => p.id !== 41 && (
+  const results = ALL_PEOPLE.filter(p => (
     p.name.toLowerCase().includes(q) ||
     p.teaser.toLowerCase().includes(q) ||
     p.body.toLowerCase().includes(q) ||

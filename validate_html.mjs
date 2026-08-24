@@ -13,6 +13,7 @@ const expectedFragments = [
   'Matthew 1:1&ndash;17',
   'Sources and interpretation notes',
   'SOURCE_AWARE_OVERRIDES',
+  'SOURCE BOUNDARY',
   'enhanceRenderedControls',
   'prefers-reduced-motion',
   'skip-link',
@@ -22,6 +23,10 @@ for (const fragment of expectedFragments) {
   if (!html.includes(fragment)) {
     throw new Error(`Expected fragment missing: ${fragment}`);
   }
+}
+
+if (/\bid:41\b/.test(html)) {
+  throw new Error('Mary must not remain as a numbered primary-chain record.');
 }
 
 console.log('Genealogy page validation passed.');
